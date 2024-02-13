@@ -18,3 +18,4 @@ class Customer(Base):
     customer_event_contact = Column(Text)
 
     sales = relationship('User', back_populates='customer')
+    event = relationship('Event', back_populates='customer')
