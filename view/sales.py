@@ -14,18 +14,38 @@ class SalesMenu:
         print("1) Créer une fiche client.")
         print("2) Modifier une fiche client.")
         print("3) Afficher toutes les fiches clients.")
-        print("4) Retour au Menu Commercial.")
+        print("4) Afficher toutes les fiches clients auxquels je suis associé.")
+        print("5) Retour au Menu Commercial.")
         return input("Votre choix: ")
 
     @staticmethod
-    def sale_contrats_menu():
+    def id_change_customer():
+        print("Quel client souhaitez-vous modifier?")
+        return input("ID du client: ")
+
+    @staticmethod
+    def error_customer_not_associated():
+        print("Vous n'êtes pas associé à ce client, veuillez en choisir un autre!")
+
+    @staticmethod
+    def sale_contracts_menu():
         print("\n-----MENU CONTRATS-----")
         print("1) Modifier un contrat.")
         print("2) Afficher tout les contrats.")
-        print("3) Afficher tous les contrats non signés.")
-        print("4) Afficher tous les contrats pas entièrement réglés.")
-        print("5) Retour au Menu Commercial.")
+        print("3) Afficher tout mes contrats.")
+        print("4) Afficher tous mes contrats non signés.")
+        print("5) Afficher tous mes contrats pas entièrement réglés.")
+        print("6) Retour au Menu Commercial.")
         return input("Votre choix: ")
+
+    @staticmethod
+    def id_change_contract():
+        print("Quel contrat souhaitez-vous modifier?")
+        return input("ID du contrat: ")
+
+    @staticmethod
+    def error_contract_not_associated():
+        print("Vous n'êtes pas associé à ce contrat, veuillez en choisir un autre!")
 
     @staticmethod
     def sale_events_menu():
@@ -34,6 +54,11 @@ class SalesMenu:
         print("2) Afficher tout les évènement.")
         print("3) Retour au Menu Commercial.")
         return input("Votre choix: ")
+
+    @staticmethod
+    def id_new_contract():
+        print("À partir de quel contrat souhaitez-vous créer un évènement?")
+        return input("ID du contrat: ")
 
     @staticmethod
     def new_customer_informations():
