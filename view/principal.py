@@ -7,9 +7,9 @@ class MainMenu:
     @staticmethod
     def registration_informations():
         print("\n-----VEUILLEZ VOUS CONNECTER-----")
-        lastname = input("Nom: ")
+        name_lastname = input("Nom et prénom: ")
         password = input("Mot de passe: ")
-        return lastname, password
+        return name_lastname, password
 
     @staticmethod
     def input_error():
@@ -20,12 +20,11 @@ class MainMenu:
         print("\n---TOUS LES COLLABORATEURS---")
         users = session.query(User).all()
         for user in users:
-            print(f"ID: {user.user_id}, Nom: {user.user_lastname}, Département: {user.user_departement},"
-                  f"Email: {user.user_email}")
+            print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.departement}, Email: {user.email}")
 
     @staticmethod
     def search_users_input():
-        print("Recherche avancée parmi l' ID, le nom, le département et l'email.")
+        print("Recherche avancée parmi l'ID, le nom, le département et l'email.")
         return input("Recherche: ")
 
     @staticmethod
@@ -33,16 +32,15 @@ class MainMenu:
         print("\n---RESULTAT DE LA RECHERCHE---")
         users = session.query(User).filter(
             or_(
-                User.user_id == search,
-                User.user_lastname.startswith(f"%{search}%"),
-                User.user_department.startswith(f"%{search}%"),
-                User.user_email.startswith(f"%{search}%")
+                User.id == search,
+                User.name_lastname.startswith(f"%{search}%"),
+                User.department.startswith(f"%{search}%"),
+                User.email.startswith(f"%{search}%")
             )
         ).all
         if users:
             for user in users:
-                print(f"ID: {user.user_id}, Nom: {user.user_lastname}, Département: {user.user_departement},"
-                      f"Email: {user.user_email}")
+                print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.departement}, Email: {user.email}")
             else:
                 print("Aucun collaborateur trouvé avec cette recherche.")
 
@@ -52,18 +50,18 @@ class MainMenu:
         customers = session.query(Customer).all()
         if customers:
             for customer in customers:
-                print(f"ID: {customer.customer_id}, Vendeur associé: {customer.customer_sales_id}, "
-                      f"Nom: {customer.customer_lastname}, Email: {customer.customer_email}, "
-                      f"Téléphone: {customer.customer_phone}, Nom d'entreprise: {customer.customer_bussines_name}, "
-                      f"Date de premier contact: {customer.customer__date_first_contact}, "
-                      f"Dernière mise à jour: {customer.customer_last_update}, "
-                      f"Contact événement: {customer.customer_event_contact}")
+                print(f"ID: {customer.id},  "
+                      f"Prénom et nom: {customer.name_lastname}, Email: {customer.email}, "
+                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.bussines_name}, "
+                      f"Date de premier contact: {customer.date_first_contact}, "
+                      f"Dernière mise à jour: {customer.last_date_update}, "
+                      f"Vendeur associé: {customer.sales_contact},")
         else:
             print("Aucun client pour le moment.")
 
     @staticmethod
     def search_customers_input():
-        print("Recherche avancée parmi l'ID, le nom, l'email et le nom d'entreprise.")
+        print("Recherche avancée parmi l'ID, le nom, l'email le nom d'entreprise et le nom du contact commercial.")
         return input("Recherche: ")
 
     @staticmethod
@@ -71,20 +69,21 @@ class MainMenu:
         print("\n---RESULTAT DE LA RECHERCHE---")
         customers = session.query(Customer).filter(
             or_(
-                Customer.customer_id == search,
-                Customer.customer_lastname.startswith(f"%{search}%"),
-                Customer.customer_email.startswith(f"%{search}%"),
-                Customer.customer_bussines_name.startswith(f"%{search}%")
+                Customer.id == search,
+                Customer.name_lastname.startswith(f"%{search}%"),
+                Customer.email.startswith(f"%{search}%"),
+                Customer.bussines_name.startswith(f"%{search}%"),
+                Customer.sales_contact.startswith(f"%{search}%")
             )
         ).all
         if customers:
             for customer in customers:
-                print(f"ID: {customer.customer_id}, Vendeur associé: {customer.customer_sales_id}, "
-                      f"Nom: {customer.customer_lastname}, Email: {customer.customer_email}, "
-                      f"Téléphone: {customer.customer_phone}, Nom d'entreprise: {customer.customer_bussines_name}, "
-                      f"Date de premier contact: {customer.customer__date_first_contact}, "
-                      f"Dernière mise à jour: {customer.customer_last_update}, "
-                      f"Contact événement: {customer.customer_event_contact}")
+                print(f"ID: {customer.id},  "
+                      f"Prénom et nom: {customer.name_lastname}, Email: {customer.email}, "
+                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.bussines_name}, "
+                      f"Date de premier contact: {customer.date_first_contact}, "
+                      f"Dernière mise à jour: {customer.last_date_update}, "
+                      f"Vendeur associé: {customer.sales_contact},")
             else:
                 print("Aucun client trouvé avec cette recherche.")
 
@@ -94,17 +93,20 @@ class MainMenu:
         contracts = session.query(Contract).all()
         if contracts:
             for contract in contracts:
-                print(f"ID: {contract.contract_id}, Vendeur associé: {contract.contract_sales_id}, "
-                      f"Client associé: {contract.contract_customer_id}, Total du contrat: {contract.contract_total_amount}, "
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
+                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
+                      f"Total du contrat: {contract.contract_total_amount}, "
                       f"Total déjà réglé: {contract.contract_settled_amount}, "
                       f"Total reste à régler: {contract.contract_remaining_amount}, "
-                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}")
+                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.sales_contact_contract}")
         else:
             print("Aucun contrat pour le moment.")
 
     @staticmethod
     def search_contracts_input():
-        print("Recherche avancée parmi l'ID, le montant total ou l'ID du commercial associé.")
+        print("Recherche avancée parmi l'ID, le nom ou prénom du client, le total du contrat ou le nom prénom du "
+              "contact commercial.")
         return input("Recherche: ")
 
     @staticmethod
@@ -112,19 +114,21 @@ class MainMenu:
         print("\n---RESULTAT DE LA RECHERCHE---")
         contracts = session.query(Contract).filter(
             or_(
-                Contract.contract_id == search,
-                Contract.contract_customer_id == search,
+                Contract.id == search,
+                Contract.customer_name_lastname.startswith(f"%{search}%"),
                 Contract.contract_total_amount == search,
-                Contract.contract_sales_id == search,
+                Contract.sales_contact_contract.startswith(f"%{search}%")
             )
         ).all
         if contracts:
             for contract in contracts:
-                print(f"ID: {contract.contract_id}, Vendeur associé: {contract.contract_sales_id}, "
-                      f"Client associé: {contract.contract_customer_id}, Total du contrat: {contract.contract_total_amount}, "
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
+                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
+                      f"Total du contrat: {contract.contract_total_amount}, "
                       f"Total déjà réglé: {contract.contract_settled_amount}, "
                       f"Total reste à régler: {contract.contract_remaining_amount}, "
-                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}")
+                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.sales_contact_contract}")
             else:
                 print("Aucun contrat trouvé avec cette recherche.")
 
@@ -134,17 +138,19 @@ class MainMenu:
         events = session.query(Event).all()
         if events:
             for event in events:
-                print(f"ID: {event.event_id}, Contrat associé: {event.event_contract_id}, "
-                      f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
-                      f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
-                      f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
-                      f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
+                print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
+                      f"Prénom et nom du client: {event.customer_name_lastname}, "
+                      f"Email du client: {event.customer_email}, Téléphone du client: {event.customer_phone}, "
+                      f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
+                      f"Date de fin: {event.date_hour_end}, Adresse: {event.adress}, Nombre de convives: {event.guests}, "
+                      f"Notes: {event.notes}, Support associé: {event.support_contact}")
         else:
             print("Aucun événement pour le moment.")
 
     @staticmethod
     def search_events_input():
-        print("Recherche avancée parmi l'ID, le montant total ou l'ID du commercial associé.")
+        print("Recherche avancée parmi l'ID, le nom et prénom du client, le titire de l'événement ou le nom et prénom du "
+              "support associé.")
         return input("Recherche: ")
 
     @staticmethod
@@ -152,17 +158,19 @@ class MainMenu:
         print("\n---RESULTAT DE LA RECHERCHE---")
         events = session.query(Event).filter(
             or_(
-                Event.event_id == search,
-                Event.event_title.startswith(f"%{search}%"),
-                Event.event_customer_id == search
+                Event.id == search,
+                Event.customer_name_lastname.startswith(f"%{search}%"),
+                Event.title.startswith(f"%{search}%"),
+                Event.support_contact.startswith(f"%{search}%")
             )
         ).all
         if events:
             for event in events:
-                print(f"ID: {event.event_id}, Contrat associé: {event.event_contract_id}, "
-                      f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
-                      f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
-                      f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
-                      f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
+                print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
+                      f"Prénom et nom du client: {event.customer_name_lastname}, "
+                      f"Email du client: {event.customer_email}, Téléphone du client: {event.customer_phone}, "
+                      f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
+                      f"Date de fin: {event.date_hour_end}, Adresse: {event.adress}, Nombre de convives: {event.guests}, "
+                      f"Notes: {event.notes}, Support associé: {event.support_contact}")
             else:
                 print("Aucun événement trouvé avec cette recherche.")

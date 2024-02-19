@@ -4,8 +4,8 @@ from model.management import Event, User
 
 class ManagementMenu:
     @staticmethod
-    def management_menu(self):
-        print(f"\n-----BONJOUR {self.lastname}-----")
+    def management_menu():
+        print(f"\n-----MENU GESTION-----")
         print("1) Menu collaborateurs.")
         print("1) Menu clients.")
         print("2) Menu contrats.")
@@ -43,7 +43,8 @@ class ManagementMenu:
     def management_customers_menu():
         print("\n-----MENU CLIENTS-----")
         print("1) Afficher toutes les fiches clients.")
-        print("2) Retour au Menu Commercial.")
+        print("2) Rechercher un client.")
+        print("3) Retour au Menu Gestion.")
         return input("Votre choix: ")
 
     @staticmethod
@@ -52,7 +53,8 @@ class ManagementMenu:
         print("1) Créer un contrat.")
         print("2) Modifier un contrat.")
         print("3) Afficher tout les contrats.")
-        print("4) Retour au Menu Gestion.")
+        print("4) Rechercher un contrat.")
+        print("5) Retour au Menu Gestion.")
         return input("Votre choix: ")
 
     @staticmethod
@@ -70,8 +72,9 @@ class ManagementMenu:
         print("\n-----MENU EVENEMENTS-----")
         print("1) Modifier un évènement.")
         print("2) Afficher tout les évènement.")
-        print("3) Afficher tous les événements sans supports associés.")
-        print("4) Retour au Menu Gestion.")
+        print("3) Rechercher un évènement.")
+        print("4) Afficher tous les événements sans supports associés.")
+        print("5) Retour au Menu Gestion.")
         return input("Votre choix: ")
 
     @staticmethod
@@ -82,32 +85,30 @@ class ManagementMenu:
     @staticmethod
     def new_user_informations():
         print("\n-----NOUVEAU COLLABORATEUR-----")
-        user_lastname = input("Nom: ")
+        name_lastname = input("Nom et prénom: ")
         print("\n-----LES DEPARTEMENTS A RESEIGNER:-----")
         print("-----COM: COMMERCIAL-----")
         print("-----GES: GESTION-----")
         print("-----SUP: SUPPORT-----")
-        user_department = input("Departement: ")
-        user_password = input("Mot de passe: ")
-        user_email = input("Email: ")
-        return user_lastname, user_department, user_password, user_email
+        department = input("Departement: ")
+        password = input("Mot de passe: ")
+        email = input("Email: ")
+        return name_lastname, department, password, email
 
     @staticmethod
     def new_contract_informations():
         print("\n-----NOUVEAU CONTRAT-----")
-        contract_sales_id = input("Numéro du commercial associé au contrat: ")
-        contract_customer_id = input("Numéro du client associé au contrat: ")
-        contract_total_amount = input("Prix total du contrat: ")
-        contract_settled_amount = input("Montant déjà réglé: ")
+        total_amount = input("Cout total du contrat: ")
+        settled_amount = input("Montant déjà réglé: ")
         contract_sign = input("Le contract a-t-il été validé par le client? (Oui=True / Non=False): ")
-        return contract_sales_id, contract_customer_id, contract_total_amount, contract_settled_amount, contract_sign
+        return total_amount, settled_amount, contract_sign
 
     @staticmethod
     def show_all_events_no_support():
         print("\n---TOUS LES EVENEMENTS SANS SUPPORT ASSOCIE---")
-        events = session.query(Event).filter(Event.event_support_id is None).all()
+        events = session.query(Event).filter(Event.support_contact is None).all()
         for event in events:
-            print(f"ID: {event.event_id}, Contrat associé: {event.event_contract_id}, "
+            print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
                   f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
                   f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
                   f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
