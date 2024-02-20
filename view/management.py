@@ -1,5 +1,5 @@
 from database import session
-from model.management import Event, User
+from model.management import Event
 
 
 class ManagementMenu:
@@ -83,34 +83,25 @@ class ManagementMenu:
         return input("ID de l'évènement: ")
 
     @staticmethod
-    def new_user_informations():
-        print("\n-----NOUVEAU COLLABORATEUR-----")
-        name_lastname = input("Nom et prénom: ")
-        print("\n-----LES DEPARTEMENTS A RESEIGNER:-----")
-        print("-----COM: COMMERCIAL-----")
-        print("-----GES: GESTION-----")
-        print("-----SUP: SUPPORT-----")
-        department = input("Departement: ")
-        password = input("Mot de passe: ")
-        email = input("Email: ")
-        return name_lastname, department, password, email
-
-    @staticmethod
-    def new_contract_informations():
-        print("\n-----NOUVEAU CONTRAT-----")
-        total_amount = input("Cout total du contrat: ")
-        settled_amount = input("Montant déjà réglé: ")
-        contract_sign = input("Le contract a-t-il été validé par le client? (Oui=True / Non=False): ")
-        return total_amount, settled_amount, contract_sign
-
-    @staticmethod
     def show_all_events_no_support():
         print("\n---TOUS LES EVENEMENTS SANS SUPPORT ASSOCIE---")
         events = session.query(Event).filter(Event.support_contact is None).all()
-        for event in events:
-            print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
-                  f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
-                  f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
-                  f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
-                  f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
+        if events:
+            for event in events:
+                print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
+                      f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
+                      f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
+                      f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
+                      f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
+        else:
+            print("Tous les événements ont l'air d'avoir été attribuées.")
+
+def new_contract_informations():
+    print("\n-----NOUVEAU CONTRAT-----")
+    total_amount = input("Cout total du contrat: ")
+    settled_amount = input("Montant déjà réglé: ")
+    contract_sign = input("Le contract a-t-il été validé par le client? (Oui=True / Non=False): ")
+    return total_amount, settled_amount, contract_sign
+
+
 

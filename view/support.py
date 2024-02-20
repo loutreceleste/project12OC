@@ -1,3 +1,6 @@
+from database import session
+from model.management import Event
+
 class SupportMenu:
     @staticmethod
     def support_menu():
@@ -33,3 +36,17 @@ class SupportMenu:
         print("4) Rechercher un évènement.")
         print("5) Retour au Menu Support.")
         return input("Votre choix: ")
+
+    @staticmethod
+    def show_all_events_self_support(name_lastname):
+        print("\n---TOUS LES EVENEMENTS DONT JE SUIS RESPONSABLE---")
+        events = session.query(Event).filter(Event.support_contact == name_lastname).all()
+        if events:
+            for event in events:
+                print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
+                      f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
+                      f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
+                      f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
+                      f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
+        else:
+            print("Vous ne semblez être responsable d'aucun événement.")

@@ -1,3 +1,8 @@
+from sqlalchemy import and_
+
+from database import session
+from model.management import Contract
+
 class SalesMenu:
     @staticmethod
     def sale_menu():
@@ -82,3 +87,45 @@ class SalesMenu:
         guests = input("Nombre d'invités: ")
         notes = input("Notes: ")
         return title, date_hour_start, date_hour_end, adress, guests, notes
+
+    @staticmethod
+    def show_my_contracts_not_sign(name_lastname):
+        print("\n---TOUS MES CONTRATS NON SIGNÉS---")
+        contracts = session.query(Contract).filter(
+            and_(
+                Contract.sales_contact_contract == name_lastname,
+                Contract.contract_sign == False
+            )
+            ).all()
+        if contracts:
+            for contract in contracts:
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
+                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
+                      f"Total du contrat: {contract.contract_total_amount}, "
+                      f"Total déjà réglé: {contract.contract_settled_amount}, "
+                      f"Total reste à régler: {contract.contract_remaining_amount}, "
+                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.sales_contact_contract}")
+        else:
+            print("Tous vos contrats ont l'air d'être signés.")
+
+    @staticmethod
+    def show_my_contracts_remaining_amount(name_lastname):
+        print("\n---TOUS MES CONTRATS NON ENTIÈREMENT RÉGLÉS---")
+        contracts = session.query(Contract).filter(
+            and_(
+                Contract.sales_contact_contract == name_lastname,
+                Contract.remaining_amount > 0
+            )
+        ).all()
+        if contracts:
+            for contract in contracts:
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
+                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
+                      f"Total du contrat: {contract.contract_total_amount}, "
+                      f"Total déjà réglé: {contract.contract_settled_amount}, "
+                      f"Total reste à régler: {contract.contract_remaining_amount}, "
+                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.sales_contact_contract}")
+        else:
+            print("Tous vos contrats ont l'air totalement réglés.")
