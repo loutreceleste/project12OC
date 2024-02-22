@@ -25,21 +25,6 @@ class ManagementMenu:
         return input("Votre choix: ")
 
     @staticmethod
-    def id_change_user():
-        print("Quel collaborateur souhaitez-vous modifier?")
-        return input("ID du collaborateur: ")
-
-    @staticmethod
-    def id_delete_user():
-        print("Quel collaborateur souhaitez-vous supprimer?")
-        return input("ID du collaborateur: ")
-
-    @staticmethod
-    def delete_user_warning():
-        print("Êtes-vous sûr de vouloir supprimer ce collaborateur?")
-        return input("OUI/NON: ")
-
-    @staticmethod
     def management_customers_menu():
         print("\n-----MENU CLIENTS-----")
         print("1) Afficher toutes les fiches clients.")
@@ -56,11 +41,6 @@ class ManagementMenu:
         print("4) Rechercher un contrat.")
         print("5) Retour au Menu Gestion.")
         return input("Votre choix: ")
-
-    @staticmethod
-    def id_new_contract():
-        print("À partir de quel client souhaitez-vous créer un contrat?")
-        return input("ID du client: ")
 
     @staticmethod
     def id_change_contract():
@@ -95,13 +75,3 @@ class ManagementMenu:
                       f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
         else:
             print("Tous les événements ont l'air d'avoir été attribuées.")
-
-def new_contract_informations():
-    print("\n-----NOUVEAU CONTRAT-----")
-    total_amount = input("Cout total du contrat: ")
-    settled_amount = input("Montant déjà réglé: ")
-    contract_sign = input("Le contract a-t-il été validé par le client? (Oui=True / Non=False): ")
-    return total_amount, settled_amount, contract_sign
-
-
-

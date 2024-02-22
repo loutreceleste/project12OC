@@ -4,16 +4,6 @@ from model.sales import Customer
 from database import session
 
 class MainMenu:
-    @staticmethod
-    def registration_informations():
-        print("\n-----VEUILLEZ VOUS CONNECTER-----")
-        name_lastname = input("Nom et prénom: ")
-        password = input("Mot de passe: ")
-        return name_lastname, password
-
-    @staticmethod
-    def input_error():
-        print("Erreur de saisie!")
 
     @staticmethod
     def show_all_users():
