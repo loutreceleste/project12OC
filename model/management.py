@@ -10,7 +10,6 @@ from model.sales import Customer
 
 Base = declarative_base()
 
-
 class User(Base):
     __tablename__ = 'users'
 
@@ -19,6 +18,8 @@ class User(Base):
     department = Column(Enum('COM', 'GES', 'SUP'))
     password = Column(String(45))
     email = Column(String(45))
+    token = Column(String(300))
+    secret_key = Column(String(300))
 
     customer = relationship('Customer', back_populates='sales')
     contract = relationship('Contract', back_populates='sales')
@@ -251,3 +252,67 @@ class Event(Base):
 
     support = relationship('User', back_populates='event')
     contract = relationship('Contract', back_populates='event')
+
+    @classmethod
+    def create_event(cls):
+        print("À partir de quel contrat souhaitez-vous créer un événement?")
+        id = input("ID du contrat: ")
+
+        contrat = session.query(Contract).filter(Contract.id == id).first()
+
+        if contrat:
+            print(f"Souhaitez vous créer un événement pour le client {contrat.customer_name_lastname} à partir du "
+                  f"contrat n°{contrat.id}?")
+            response = input("Oui ou Non?: ").strip().lower()
+
+            if response == "oui":
+                print("\n-----NOUVEAU EVENEMENT-----")
+                title = input(f"Nom de l'événement: ")
+                date_hour_start = input(f"Date et heure du début de l'événement (format AAAA/MM/DD HH:MM:SS): ")
+                date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA/MM/DD HH:MM:SS): ")
+                address = input(f"Adresse de l'événement: ")
+                while True:
+                    guests = input(f"Nombre d'invitées: ")
+                    if guests == int:
+                        break
+                    else:
+                        print("Veuillez indiquer un nombre entier.")
+                notes = input(f"Notes: ")
+                while True:
+                    sales_contact_contract = input(f"Support référent (Nom et prénom): ")
+                    support = session.query(User).filter(User.name_lastname == sales_contact_contract).first()
+                    if support and support.department == "SUP":
+                        print(f"Souhaitez vous assigner {support.name_lastname} au contrat n°{contrat.id}?")
+                        response = input("Oui ou Non?").strip().lower()
+                        if response == "oui":
+                            break
+                        if response == "non":
+                            print("Merci de renseigner le nom et le prénom d'un support à assigner à l'événement.")
+                        else:
+                            print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
+                    else:
+                        print('Collaborateur inconnu de la base de données ou non attribué a la section "support". '
+                              "Merci de renseigner le nom et le prénom d'un collaborateur à assigner à l'événement.")
+
+                new_contract = cls(contract_id=contrat.id, customer_name_lastname=contrat.customer_name_lastname,
+                                   customer_email=contrat.customer_email,
+                                   customer_phone=contrat.customer_phone, title=title,
+                                   date_hour_start=date_hour_start, date_hour_end=date_hour_end,
+                                   address=address, guests=guests, notes=notes, sales_contact_contract= support)
+
+                session.add(new_contract)
+                session.commit()
+                print("Votre événement a été créé avec succès!")
+                ManagementMenu.management_events_menu()
+
+            if response == "non":
+                print("Création annulée. Vous allez être redirigée vers le Menu Événement.")
+                ManagementMenu.management_events_menu()
+
+            else:
+                print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
+
+        if contrat is None:
+            print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
+                  "Menu Événement.")
+            ManagementMenu.management_events_menu()
