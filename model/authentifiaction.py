@@ -19,7 +19,7 @@ def create_jwt():
         and_(
             User.name_lastname == name_lastname,
             User.password == password,
-        ).get(1))
+        ).first())
 
     if user:
         payload = {"id": user.id, "name_lastname": user.name_lastname, "department": user.department,

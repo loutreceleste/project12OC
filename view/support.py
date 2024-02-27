@@ -28,7 +28,7 @@ class SupportMenu:
         return input("Votre choix: ")
 
     @staticmethod
-    def sale_events_menu():
+    def support_events_menu():
         print("\n-----MENU EVENEMENTS-----")
         print("1) Modifier un évènement.")
         print("2) Afficher tout les évènement.")
