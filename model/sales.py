@@ -1,9 +1,9 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, BigInteger, func, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, BigInteger, func
 from sqlalchemy.orm import relationship
 
 from database import session
-from view.sales import SalesMenu
+from view.sales import SalesMenu, SalesCustomerViews
 
 Base = declarative_base()
 
@@ -23,45 +23,26 @@ class Customer(Base):
 
     @classmethod
     def create_customer(cls, user):
-        print("\n-----NOUVEAU CLIENT-----")
-        name_lastname = input("Nom et prénom du client: ")
-        email = input("Email du client: ")
-        while True:
-            phone = input("Téléphone du client: ")
-            if phone.isdigit():
-                phone = int(phone)
-            else:
-                print("Veuillez indiquer un numéro de téléphone.")
-        bussines_name = input("Nom commercial du client: ")
+        name_lastname, email, phone, bussines_name = SalesCustomerViews.create_customer_view()
 
         new_customer = cls(name_lastname=name_lastname, email=email, phone=phone, bussines_name=bussines_name,
                            sales_contact=user.name_lastname)
 
         session.add(new_customer)
         session.commit()
-        print("Votre client a été correctement crée. Vous allez être redirigée vers le Menu Commercial")
+        SalesCustomerViews.validation_customer_creation()
         SalesMenu.sale_customers_menu()
 
 
     @classmethod
     def update_customer(cls, user):
-        print("Quel client souhaitez vous modifier?")
-        id = input("ID du cleint a modifier: ")
+        id = SalesCustomerViews.update_customer_id_view()
 
-        customer = session.query(Customer).filter(Customer.id == id).first()
+        customer = session.query(Customer).filter(Customer.id == id).limit(1)
 
         if customer:
             if customer.sales_contact == user.name_lastname:
-                print(f"\n-----MISE A JOUR DU CLIENT N°{customer.id}-----")
-                name_lastname = input(f"Nom et prénom du client: {customer.name_lastname}")
-                email = input(f"Email du client: {customer.email}")
-                while True:
-                    phone = input(f"Téléphone du client: {customer.phone}")
-                    if phone == int:
-                        break
-                    else:
-                        print("Veuillez indiquer un numéro de téléphone.")
-                bussines_name = input(f"Nom commercial du client: {customer.bussines_name}")
+                name_lastname, email, phone, bussines_name = SalesCustomerViews.update_customer_view(customer)
 
                 customer.name_lastname = name_lastname
                 customer.email = email
@@ -69,14 +50,13 @@ class Customer(Base):
                 customer.bussines_name = bussines_name
 
                 session.commit()
-                print("La fiche de votre client a bien été modifié!")
+                SalesCustomerViews.validation_update_customer_view()
                 SalesMenu.sale_customers_menu()
 
             else:
-                print("Vous n'êtes pas en change de ce client. Vous allez être redirigé vers le Menu Commercial.")
+                SalesCustomerViews.not_in_charge_customer_view()
                 SalesMenu.sale_customers_menu()
 
         else:
-            print("Erreur de frappe ou aucun client ne correspond a cette ID. Vous allez être redirigé vers le "
-                  "Menu Commercial.")
+            SalesCustomerViews.none_customer_view()
             SalesMenu.sale_customers_menu()

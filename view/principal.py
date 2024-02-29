@@ -3,7 +3,7 @@ from model.management import User, Contract, Event
 from model.sales import Customer
 from database import session
 
-class MainMenu:
+class MainSearch:
 
     @staticmethod
     def show_all_users():
@@ -13,12 +13,10 @@ class MainMenu:
             print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.departement}, Email: {user.email}")
 
     @staticmethod
-    def search_users_input():
+    def show_all_users_search():
         print("Recherche avancée parmi l'ID, le nom, le département et l'email.")
-        return input("Recherche: ")
+        search = input("Recherche: ")
 
-    @staticmethod
-    def show_all_users_search(search):
         print("\n---RESULTAT DE LA RECHERCHE---")
         users = session.query(User).filter(
             or_(
@@ -31,8 +29,8 @@ class MainMenu:
         if users:
             for user in users:
                 print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.departement}, Email: {user.email}")
-            else:
-                print("Aucun collaborateur trouvé avec cette recherche.")
+        else:
+            print("Aucun collaborateur trouvé avec cette recherche.")
 
     @staticmethod
     def show_all_customers():
@@ -50,12 +48,10 @@ class MainMenu:
             print("Aucun client pour le moment.")
 
     @staticmethod
-    def search_customers_input():
+    def show_all_customers_search():
         print("Recherche avancée parmi l'ID, le nom, l'email le nom d'entreprise et le nom du contact commercial.")
-        return input("Recherche: ")
+        search = input("Recherche: ")
 
-    @staticmethod
-    def show_all_customers_search(search):
         print("\n---RESULTAT DE LA RECHERCHE---")
         customers = session.query(Customer).filter(
             or_(
@@ -74,8 +70,8 @@ class MainMenu:
                       f"Date de premier contact: {customer.date_first_contact}, "
                       f"Dernière mise à jour: {customer.last_date_update}, "
                       f"Vendeur associé: {customer.sales_contact},")
-            else:
-                print("Aucun client trouvé avec cette recherche.")
+        else:
+            print("Aucun client trouvé avec cette recherche.")
 
     @staticmethod
     def show_all_contracts():
@@ -94,13 +90,11 @@ class MainMenu:
             print("Aucun contrat pour le moment.")
 
     @staticmethod
-    def search_contracts_input():
+    def show_all_contracts_search():
         print("Recherche avancée parmi l'ID, le nom ou prénom du client, le total du contrat ou le nom prénom du "
               "contact commercial.")
-        return input("Recherche: ")
+        search = input("Recherche: ")
 
-    @staticmethod
-    def show_all_contracts_search(search):
         print("\n---RESULTAT DE LA RECHERCHE---")
         contracts = session.query(Contract).filter(
             or_(
@@ -119,8 +113,8 @@ class MainMenu:
                       f"Total reste à régler: {contract.contract_remaining_amount}, "
                       f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
                       f"Vendeur associé: {contract.sales_contact_contract}")
-            else:
-                print("Aucun contrat trouvé avec cette recherche.")
+        else:
+            print("Aucun contrat trouvé avec cette recherche.")
 
     @staticmethod
     def show_all_events():
@@ -138,13 +132,11 @@ class MainMenu:
             print("Aucun événement pour le moment.")
 
     @staticmethod
-    def search_events_input():
+    def show_all_events_search():
         print("Recherche avancée parmi l'ID, le nom et prénom du client, le titire de l'événement ou le nom et prénom du "
-              "support associé.")
-        return input("Recherche: ")
+            "support associé.")
+        search = input("Recherche: ")
 
-    @staticmethod
-    def show_all_events_search(search):
         print("\n---RESULTAT DE LA RECHERCHE---")
         events = session.query(Event).filter(
             or_(
@@ -162,5 +154,16 @@ class MainMenu:
                       f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
                       f"Date de fin: {event.date_hour_end}, Adresse: {event.adress}, Nombre de convives: {event.guests}, "
                       f"Notes: {event.notes}, Support associé: {event.support_contact}")
-            else:
-                print("Aucun événement trouvé avec cette recherche.")
+        else:
+            print("Aucun événement trouvé avec cette recherche.")
+
+class MainView:
+
+    @staticmethod
+    def oui_non_input():
+        response = input("Oui ou Non?").strip().lower()
+        return response
+
+    @staticmethod
+    def error_oui_non_input():
+        print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")

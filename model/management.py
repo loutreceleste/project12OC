@@ -6,10 +6,12 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Text
 from sqlalchemy.orm import relationship
 from database import session
 
-from view.management import ManagementMenu
+from view.management import ManagementMenu, ManagementUserViews, ManagementContractViews, ManagementEventViews
 from view.support import SupportMenu
 from view.sales import SalesMenu
+from view.principal import MainView
 from model.sales import Customer
+
 
 Base = declarative_base()
 
@@ -34,82 +36,53 @@ class User(Base):
 
     @classmethod
     def create_user(cls):
-        print("\n-----NOUVEAU COLLABORATEUR-----")
-        name_lastname = input("Nom et prénom: ")
-        print("\n-----LES DEPARTEMENTS A RESEIGNER:-----")
-        print("-----COM: COMMERCIAL-----")
-        print("-----GES: GESTION-----")
-        print("-----SUP: SUPPORT-----")
-        while True:
-            department = input("Departement: ").upper()
-            if department in ('COM', 'GES', 'SUP'):
-                break
-            else:
-                print("Département invalide. Veuillez choisir parmi 'COM', 'GES' ou 'SUP'.")
-        password = input("Mot de passe: ")
-        email = input("Email: ")
+        name_lastname, department, password, email = ManagementUserViews.create_user_view()
 
         new_user = cls(name_lastname=name_lastname, department=department,
                        password=hashlib.sha256(password.encode()).hexdigest(), email=email)
 
         session.add(new_user)
         session.commit()
-        print(f"Le collaborateur {name_lastname} a bien été crée.")
+        ManagementUserViews.validation_user_creation(name_lastname)
         ManagementMenu.management_users_menu()
 
     @classmethod
     def delete_user(cls):
-        print("Quel collaborateur souhaitez-vous supprimer?")
-        id = input("ID du collaborateur: ")
+        id = ManagementUserViews.delete_user_id_view()
 
-        user = session.query(User).filter(User.id == id).first()
+        user = session.query(User).filter(User.id == id).limit(1)
         if user:
             while True:
-                print(f"Êtes-vous sûr de vouloir effacer le collaborateur {user.name_lastname}?")
-                response = input("Oui ou Non?").strip().lower()
+                ManagementUserViews.confirmation_delete_user_view(user)
+                response = MainView.oui_non_input()
 
                 if response == "oui":
                     session.delete(user)
                     session.commit()
-                    print(f"{user.name_lastname} a bien été supprimée de la base de données.")
-                    ManagementMenu.management_users_menu()
+                    ManagementUserViews.validation_delete_user_view(user)
                     break
 
                 elif response == "non":
-                    print("Suppression annulée. Vous allez être redirigé vers le Menu Collaborateur.")
-                    ManagementMenu.management_users_menu()
+                    ManagementUserViews.cancelation_delete_user_view()
                     break
 
                 else:
-                    print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
+                    MainView.error_oui_non_input()
 
-        if user is None:
-            print("Erreur de frappe ou aucun collaborateur ne correspond a cette ID. Vous allez être redirigé vers le "
-                  "Menu Collaborateur.")
+            ManagementMenu.management_users_menu()
+
+        else:
+            ManagementUserViews.none_user_view()
             ManagementMenu.management_users_menu()
 
 
     @classmethod
     def update_user(cls):
-        print("Quel collaborateur souhaitez-vous modifier?")
-        id = input("ID du collaborateur: ")
+        id = ManagementUserViews.update_user_id_view()
 
-        user = session.query(User).filter(User.id == id).first()
+        user = session.query(User).filter(User.id == id).limit(1)
         if user:
-            print(f"\n-----MISE A JOUR DU COLLABORATEUR N°{id}-----")
-            name_lastname = input(f"Nom et prénom: {user.name_lastname}")
-            print("\n-----LES DEPARTEMENTS A RESEIGNER:-----")
-            print("-----COM: COMMERCIAL-----")
-            print("-----GES: GESTION-----")
-            print("-----SUP: SUPPORT-----")
-            while True:
-                department = input(f"Departement: {user.departement}").upper()
-                if department in ('COM', 'GES', 'SUP'):
-                    break
-                else:
-                    print("Département invalide. Veuillez choisir parmi 'COM', 'GES' ou 'SUP'.")
-            password = input("Mot de passe (laissez vide pour ne pas modifier): ")
-            email = input(f"Email: {user.email}")
+            name_lastname, department, password, email = ManagementUserViews.update_user_view(user, id)
 
             user.name_lastname = name_lastname
             user.departement = department
@@ -118,12 +91,11 @@ class User(Base):
             user.email = email
 
             session.commit()
-            print(f"Le collaborateur {user.name_lastname} a bien ete modifié")
+            ManagementUserViews.validation_update_user_view(user)
             ManagementMenu.management_users_menu()
 
-        if user is None:
-            print("Erreur de frappe ou aucun collaborateur ne correspond a cette ID. Vous allez être redirigé vers le "
-                  "Menu Collaborateur.")
+        else:
+            ManagementUserViews.none_user_view()
             ManagementMenu.management_users_menu()
 
 class Contract(Base):
@@ -146,154 +118,86 @@ class Contract(Base):
 
     @classmethod
     def create_contract(cls):
-            print("À partir de quel client souhaitez-vous créer un contrat?")
-            id = input("ID du client: ")
+            id = ManagementContractViews.create_contract_id_customer_view()
 
-            customer = session.query(Customer).filter(Customer.id == id).first()
+            customer = session.query(Customer).filter(Customer.id == id).limit(1)
 
             if customer:
-                print(f"Souhaitez vous créer un contrat pour le client {customer.name_lastname}?")
-                response = input("Oui ou Non?").strip().lower()
+                ManagementContractViews.confirmation_create_contract_view(customer)
+                response = MainView.oui_non_input()
 
-                if response == "oui":
-                    print("\n-----NOUVEAU CONTRAT-----")
-                    while True:
-                        total_amount = input(f"Cout total du contrat: ")
-                        if total_amount.isdigit():
-                            total_amount = int(total_amount)
-                            break
-                        else:
-                            print("Veuillez indiquer un nombre entier.")
-                    while True:
-                        settled_amount = input("Montant déjà réglé: ")
-                        if settled_amount.isdigit():
-                            settled_amount = int(settled_amount)
-                            break
-                        else:
-                            print("Veuillez indiquer un nombre entier.")
-                    while True:
-                        contract_sign = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False): ")
-                        if contract_sign in ('True', 'False'):
-                            break
-                        else:
-                            print('Veuillez répondre par "True" ou par "False"')
+                while True:
+                    if response == "oui":
+                        total_amount, settled_amount, contract_sign = ManagementContractViews.create_contract_view()
 
-                    new_contract = cls(customer_name_lastname=customer.name_lastname, customer_email=customer.email,
-                                       customer_phone=customer.phone, total_amount=total_amount,
-                                       settled_amount=settled_amount, contract_sign=contract_sign,
-                                       sales_contact_contract=customer.sales_contact)
+                        new_contract = cls(customer_name_lastname=customer.name_lastname, customer_email=customer.email,
+                                           customer_phone=customer.phone, total_amount=total_amount,
+                                           settled_amount=settled_amount, contract_sign=contract_sign,
+                                           sales_contact_contract=customer.sales_contact)
 
-                    session.add(new_contract)
-                    session.commit()
-                    print("Votre contrat a été créé avec succès!")
-                    ManagementMenu.management_contrats_menu()
+                        session.add(new_contract)
+                        session.commit()
+                        ManagementContractViews.validation_create_contract_view()
+                        break
 
-                if response == "non":
-                    print("Création annulée. Vous allez être redirigée vers le Menu Contrat.")
-                    ManagementMenu.management_contrats_menu()
+                    if response == "non":
+                        ManagementContractViews.cancelation_create_contract_view()
+                        break
 
-            if customer is None:
-                print("Erreur de frappe ou aucun client ne correspond a cette ID. Vous allez être redirigé vers le "
-                  "Menu Contrat.")
+                    else:
+                        MainView.error_oui_non_input()
+
+                ManagementMenu.management_contrats_menu()
+
+            else:
+                ManagementContractViews.none_customer_view()
                 ManagementMenu.management_contrats_menu()
 
     @classmethod
     def update_contract(cls):
-        print("Quel contrat souhaitez-vous modifier?")
-        id = input("ID du contrat: ")
+        id = ManagementContractViews.update_contract_id_view()
 
-        contract = session.query(Contract).filter(Contract.id == id).first()
+        contract = session.query(Contract).filter(Contract.id == id).limit(1)
 
         if contract:
-            print(f"Souhaitez-vous conserver le client n°{contract.id} associé à cet événement?")
-            response = input("Oui ou Non").strip().lower()
-            if response == "oui":
-                print(f"\n-----MISE A JOUR DU CONTRAT N°{id}-----")
-                while True:
-                    total_amount = input(f"Cout total du contrat: {contract.contract_total_amount}")
-                    if total_amount.isdigit():
-                        total_amount = int(total_amount)
-                        break
-                    else:
-                        print("Veuillez indiquer un nombre entier.")
-                while True:
-                    settled_amount = input(f"Montant déjà réglé: {contract.settled_amount}")
-                    if settled_amount.isdigit():
-                        settled_amount = int(settled_amount)
-                        break
-                    else:
-                        print("Veuillez indiquer un nombre entier.")
-                while True:
-                    contract_sign = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False): "
-                                          f"{contract.contract_sign}")
-                    if contract_sign in ('True', 'False'):
-                        break
-                    else:
-                        print('Veuillez répondre par "True" ou par "False"')
+            total_amount, settled_amount, contract_sign = ManagementContractViews.update_contract_view(contract, id)
+
+            contract.total_amount = total_amount
+            contract.settled_amount = settled_amount
+            contract.contract_sign = contract_sign
+
+            session.commit()
+            ManagementContractViews.validation_update_contract_view()
+            ManagementMenu.management_contrats_menu()
+
+        else:
+            ManagementContractViews.none_contract_view()
+            ManagementMenu.management_contrats_menu()
+
+    @classmethod
+    def update_contract_for_sales(cls, user):
+        id = ManagementContractViews.update_contract_id_view()
+
+        contract = session.query(Contract).filter(Contract.id == id).limit(1)
+
+        if contract.sales_contact_contract == user.name_lastname:
+            if contract:
+                total_amount, settled_amount, contract_sign = ManagementContractViews.update_contract_view(contract, id)
 
                 contract.total_amount = total_amount
                 contract.settled_amount = settled_amount
                 contract.contract_sign = contract_sign
 
                 session.commit()
-                print("Le contrat a été correctement modifié!")
-                ManagementMenu.management_contrats_menu()
+                ManagementContractViews.validation_update_contract_view()
+                SalesMenu.sale_contracts_menu()
 
-        if contract is None:
-            print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
-                  "Menu Contrat.")
-            ManagementMenu.management_contrats_menu()
-
-    @classmethod
-    def update_contract_sales(cls, user):
-        print("Quel contrat souhaitez-vous modifier?")
-        id = input("ID du contrat: ")
-
-        contract = session.query(Contract).filter(Contract.id == id).first()
-
-        if contract.sales_contact_contract == user.name_lastname:
-            if contract:
-                print(f"Souhaitez-vous conserver le client n°{contract.id} associé à cet événement?")
-                response = input("Oui ou Non").strip().lower()
-                if response == "oui":
-                    print(f"\n-----MISE A JOUR DU CONTRAT N°{id}-----")
-                    while True:
-                        total_amount = input(f"Cout total du contrat: {contract.contract_total_amount}")
-                        if total_amount.isdigit():
-                            total_amount = int(total_amount)
-                            break
-                        else:
-                            print("Veuillez indiquer un nombre entier.")
-                    while True:
-                        settled_amount = input(f"Montant déjà réglé: {contract.settled_amount}")
-                        if settled_amount.isdigit():
-                            settled_amount = int(settled_amount)
-                            break
-                        else:
-                            print("Veuillez indiquer un nombre entier.")
-                    while True:
-                        contract_sign = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False): "
-                                              f"{contract.contract_sign}")
-                        if contract_sign in ('True', 'False'):
-                            break
-                        else:
-                            print('Veuillez répondre par "True" ou par "False"')
-
-                    contract.total_amount = total_amount
-                    contract.settled_amount = settled_amount
-                    contract.contract_sign = contract_sign
-
-                    session.commit()
-                    print("Le contrat a été correctement modifié!")
-                    SalesMenu.sale_contracts_menu()
-
-            if contract is None:
-                print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
-                      "Menu Contrat.")
+            else:
+                ManagementContractViews.none_contract_view()
                 SalesMenu.sale_contracts_menu()
 
         else:
-            print("Vous n'êtes pas en change de ce contrat. Vous allez être redirigé vers le Menu Contrat.")
+            ManagementContractViews.not_in_charge_contract_view()
             SalesMenu.sale_contracts_menu()
 
 class Event(Base):
@@ -317,262 +221,84 @@ class Event(Base):
 
     @classmethod
     def create_event(cls):
-        print("À partir de quel contrat souhaitez-vous créer un événement?")
-        id = input("ID du contrat: ")
+        id = ManagementEventViews.create_event_id_contract_view()
 
-        contrat = session.query(Contract).filter(Contract.id == id).first()
+        contrat = session.query(Contract).filter(Contract.id == id).limit(1)
 
         if contrat:
             if contrat.contract_sign:
-                print(f"Souhaitez vous créer un événement pour le client {contrat.customer_name_lastname} à partir du "
-                      f"contrat n°{contrat.id}?")
-                response = input("Oui ou Non?: ").strip().lower()
+                ManagementEventViews.confirmation_create_event_view(contrat)
+                response = MainView.oui_non_input()
 
-                if response == "oui":
-                    print("\n-----NOUVEL EVENEMENT-----")
-                    title = input(f"Nom de l'événement: ")
-                    while True:
-                        date_hour_start = input(f"Date et heure du début de l'événement (format AAAA/MM/JJ HH:MM:SS): ")
-                        if check_date_format(date_hour_start):
-                            break
-                        else:
-                            print("Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                    while True:
-                        date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA/MM/JJ HH:MM:SS): ")
-                        if check_date_format(date_hour_end):
-                            break
-                        else:
-                            print(
-                                "Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                    address = input(f"Adresse de l'événement: ")
-                    while True:
-                        guests = input(f"Nombre d'invitées: ")
-                        if guests == int:
-                            break
-                        else:
-                            print("Veuillez indiquer un nombre entier.")
-                    notes = input(f"Notes: ")
-                    while True:
-                        sales_contact_contract = input(f"Support référent (Nom et prénom): ")
-                        if sales_contact_contract is None:
-                            break
-                        support = session.query(User).filter(User.name_lastname == sales_contact_contract).first()
-                        if support and support.department == "SUP":
-                            print(f"Souhaitez vous assigner {support.name_lastname} a l'événement?")
-                            response = input("Oui ou Non?").strip().lower()
-                            if response == "oui":
-                                break
-                            if response == "non":
-                                print("Merci de renseigner le nom et le prénom d'un support à assigner à l'événement.")
-                            else:
-                                print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
-                        else:
-                            print('Collaborateur inconnu de la base de données ou non attribué a la section "support". '
-                                  "Merci de renseigner le nom et le prénom d'un collaborateur à assigner à l'événement.")
+                while True:
+                    if response == "oui":
+                        title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract = (
+                            ManagementEventViews.create_event_view())
 
-                    new_contract = cls(contract_id=contrat.id, customer_name_lastname=contrat.customer_name_lastname,
-                                       customer_email=contrat.customer_email,
-                                       customer_phone=contrat.customer_phone, title=title,
-                                       date_hour_start=date_hour_start, date_hour_end=date_hour_end,
-                                       address=address, guests=guests, notes=notes, sales_contact_contract= sales_contact_contract)
+                        new_contract = cls(contract_id=contrat.id, customer_name_lastname=contrat.customer_name_lastname,
+                                           customer_email=contrat.customer_email,
+                                           customer_phone=contrat.customer_phone, title=title,
+                                           date_hour_start=date_hour_start, date_hour_end=date_hour_end,
+                                           address=address, guests=guests, notes=notes, sales_contact_contract= sales_contact_contract)
 
-                    session.add(new_contract)
-                    session.commit()
-                    print("Votre événement a été créé avec succès!")
-                    ManagementMenu.management_events_menu()
+                        session.add(new_contract)
+                        session.commit()
+                        ManagementEventViews.validation_create_event_view()
+                        break
 
-                if response == "non":
-                    print("Création annulée. Vous allez être redirigée vers le Menu Événement.")
-                    ManagementMenu.management_events_menu()
+                    if response == "non":
+                        ManagementEventViews.cancelation_create_event_view()
+                        break
 
-                else:
-                    print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
+                    else:
+                        MainView.error_oui_non_input()
+
+                SalesMenu.sale_events_menu()
 
             else:
-                print(f"Le contrat n°{contrat.id} n'a pas été signé par le client. Veuillez vous rapprocher de ce "
-                      f"dernier.")
+                ManagementEventViews.not_sign_contract_view(contrat)
+                SalesMenu.sale_events_menu()
 
-        if contrat is None:
-            print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
-                  "Menu Événement.")
-            ManagementMenu.management_events_menu()
+        else:
+            ManagementEventViews.none_event_view()
+            SalesMenu.sale_events_menu()
 
     @classmethod
     def update_event(cls):
-        print("Quel événement souhaitez-vous modifier?")
-        id = input("ID de l'événement: ")
+        id = ManagementEventViews.update_event_id_contract_view()
 
-        event = session.query(Event).filter(Event.id == id).first()
+        event = session.query(Event).filter(Event.id == id).limit(1)
 
         if event:
-            print(f"\n-----MISE A JOUR DE L'ÉVÉNEMENT N°{id}-----")
-            print(f"Souhaitez-vous conserver le contrat n°{event.contract_id} associé à cet événement?")
-            response = input("Oui ou Non").strip().lower()
-            if response == "oui":
-                title = input(f"Nom de l'événement: {event.title}")
-                while True:
-                    date_hour_start = input(f"Date et heure du début de l'événement (format AAAA/MM/JJ HH:MM:SS)"
-                                            f": {event.date_hour_start}")
-                    if check_date_format(date_hour_start):
-                        break
-                    else:
-                        print("Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                while True:
-                    date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA/MM/JJ HH:MM:SS):"
-                                          f" {event.date_hour_end}")
-                    if check_date_format(date_hour_end):
-                        break
-                    else:
-                        print(
-                            "Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                address = input(f"Adresse de l'événement: {event.adress}")
-                while True:
-                    guests = input(f"Nombre d'invitées: {event.guests}")
-                    if guests == int:
-                        break
-                    else:
-                        print("Veuillez indiquer un nombre entier.")
-                notes = input(f"Notes: {event.notes}")
-                while True:
-                    sales_contact_contract = input(f"Support référent (Nom et prénom): {event.support_contact}")
-                    if sales_contact_contract is None:
-                        break
-                    support = session.query(User).filter(User.name_lastname == sales_contact_contract).first()
-                    if support and support.department == "SUP":
-                        print(f"Souhaitez vous assigner {support.name_lastname} a l'événement?")
-                        response = input("Oui ou Non?").strip().lower()
-                        if response == "oui":
-                            break
-                        if response == "non":
-                            print("Merci de renseigner le nom et le prénom d'un support à assigner à l'événement.")
-                        else:
-                            print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
-                    else:
-                        print('Collaborateur inconnu de la base de données ou non attribué a la section "support". '
-                              "Merci de renseigner le nom et le prénom d'un collaborateur à assigner à l'événement.")
+            title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract = (
+                ManagementEventViews.update_event_view(event, id))
 
-                event.title = title
-                event.date_hour_start = date_hour_start
-                event.date_hour_end = date_hour_end
-                event.adress = address
-                event.guests = guests
-                event.notes = notes
-                event.support_contact = sales_contact_contract
+            event.title = title
+            event.date_hour_start = date_hour_start
+            event.date_hour_end = date_hour_end
+            event.adress = address
+            event.guests = guests
+            event.notes = notes
+            event.support_contact = sales_contact_contract
 
-                session.commit()
-                print("L'événement a été correctement modifié!")
-                ManagementMenu.management_events_menu()
+            session.commit()
+            ManagementEventViews.validation_update_event_view()
+            ManagementMenu.management_events_menu()
 
-            if response == "non":
-                new_contract = input("ID du nouveau contrat à assigner à l'événement: ")
-                contract = session.query(Contract).filter(Contract.id == new_contract).first()
-
-                if contract:
-                    if contract.contract_sign:
-                        title = input(f"Nom de l'événement: {event.title}")
-                        while True:
-                            date_hour_start = input(f"Date et heure du début de l'événement (format AAAA/MM/JJ HH:MM:SS)"
-                                                    f": {event.date_hour_start}")
-                            if check_date_format(date_hour_start):
-                                break
-                            else:
-                                print("Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                        while True:
-                            date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA/MM/JJ HH:MM:SS):"
-                                                  f" {event.date_hour_end}")
-                            if check_date_format(date_hour_end):
-                                break
-                            else:
-                                print(
-                                    "Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                        address = input(f"Adresse de l'événement: {event.adress}")
-                        while True:
-                            guests = input(f"Nombre d'invitées: {event.guests}")
-                            if guests == int:
-                                break
-                            else:
-                                print("Veuillez indiquer un nombre entier.")
-                        notes = input(f"Notes: {event.notes}")
-                        while True:
-                            sales_contact_contract = input(f"Support référent (Nom et prénom): {event.support_contact}")
-                            if sales_contact_contract is None:
-                                break
-                            support = session.query(User).filter(User.name_lastname == sales_contact_contract).first()
-                            if support and support.department == "SUP":
-                                print(f"Souhaitez vous assigner {support.name_lastname} a l'événement?")
-                                response = input("Oui ou Non?").strip().lower()
-                                if response == "oui":
-                                    break
-                                if response == "non":
-                                    print(
-                                        "Merci de renseigner le nom et le prénom d'un support à assigner à l'événement.")
-                                else:
-                                    print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
-                            else:
-                                print(
-                                    'Collaborateur inconnu de la base de données ou non attribué a la section "support". '
-                                    "Merci de renseigner le nom et le prénom d'un collaborateur à assigner à l'événement.")
-
-                        event.contract_id = contract.id
-                        event.customer_name_lastname = contract.customer_name_lastname
-                        event.customer_email = contract.customer_email
-                        event.customer_phone = contract.customer_phone
-                        event.title = title
-                        event.date_hour_start = date_hour_start
-                        event.date_hour_end = date_hour_end
-                        event.adress = address
-                        event.guests = guests
-                        event.notes = notes
-                        event.support_contact = sales_contact_contract
-
-                        session.commit()
-                        print("L'événement et le contrat associé ont été correctement modifié!")
-                        ManagementMenu.management_events_menu()
-
-                    else:
-                        print(f"Le contrat n°{contract.id} n'a pas été signé par le client. Veuillez vous rapprocher de ce "
-                            f"dernier. Vous allez être redirigé vers le Menu Événement.")
-                        ManagementMenu.management_events_menu()
-
-                else:
-                    print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
-                        "Menu Événement.")
-                    ManagementMenu.management_events_menu()
+        else:
+            ManagementEventViews.none_event_view()
+            ManagementMenu.management_events_menu()
 
     @classmethod
-    def update_event_support(cls, user):
-        print("Quel événement souhaitez-vous modifier?")
-        id = input("ID de l'événement: ")
+    def update_event_for_support(cls, user):
+        id = ManagementEventViews.update_event_id_contract_view()
 
-        event = session.query(Event).filter(Event.id == id).first()
+        event = session.query(Event).filter(Event.id == id).limit(1)
 
         if event.support_contact == user.name_lastname:
             if event:
-                print(f"\n-----MISE A JOUR DE L'ÉVÉNEMENT N°{id}-----")
-                title = input(f"Nom de l'événement: {event.title}")
-                while True:
-                    date_hour_start = input(f"Date et heure du début de l'événement (format AAAA/MM/JJ HH:MM:SS)"
-                                            f": {event.date_hour_start}")
-                    if check_date_format(date_hour_start):
-                        break
-                    else:
-                        print("Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                while True:
-                    date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA/MM/JJ HH:MM:SS):"
-                                          f" {event.date_hour_end}")
-                    if check_date_format(date_hour_end):
-                        break
-                    else:
-                        print(
-                            "Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-                address = input(f"Adresse de l'événement: {event.adress}")
-                while True:
-                    guests = input(f"Nombre d'invitées: {event.guests}")
-                    if guests == int:
-                        break
-                    else:
-                        print("Veuillez indiquer un nombre entier.")
-                notes = input(f"Notes: {event.notes}")
+                title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract = (
+                    ManagementEventViews.update_event_view(event, id))
 
                 event.title = title
                 event.date_hour_start = date_hour_start
@@ -582,14 +308,13 @@ class Event(Base):
                 event.notes = notes
 
                 session.commit()
-                print("L'événement a été correctement modifié!")
-                ManagementMenu.management_events_menu()
+                ManagementEventViews.validation_update_event_view()
+                SupportMenu.support_events_menu()
 
             else:
-                print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
-                    "Menu Événement.")
+                ManagementEventViews.none_event_view()
                 SupportMenu.support_events_menu()
 
         else:
-            print("Vous n'êtes pas en change de cette événement. Vous allez être redirigé vers le Menu Événement.")
+            ManagementEventViews.not_in_charge_event_view()
             SupportMenu.support_events_menu()

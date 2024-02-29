@@ -25,15 +25,6 @@ class SalesMenu:
         return input("Votre choix: ")
 
     @staticmethod
-    def id_change_customer():
-        print("Quel client souhaitez-vous modifier?")
-        return input("ID du client: ")
-
-    @staticmethod
-    def error_customer_not_associated():
-        print("Vous n'êtes pas associé à ce client, veuillez en choisir un autre!")
-
-    @staticmethod
     def sale_contracts_menu():
         print("\n-----MENU CONTRATS-----")
         print("1) Modifier un contrat.")
@@ -46,15 +37,6 @@ class SalesMenu:
         return input("Votre choix: ")
 
     @staticmethod
-    def id_change_contract():
-        print("Quel contrat souhaitez-vous modifier?")
-        return input("ID du contrat: ")
-
-    @staticmethod
-    def error_contract_not_associated():
-        print("Vous n'êtes pas associé à ce contrat, veuillez en choisir un autre!")
-
-    @staticmethod
     def sale_events_menu():
         print("\n-----MENU EVENEMENTS-----")
         print("1) Créer un évènement.")
@@ -63,30 +45,7 @@ class SalesMenu:
         print("4) Retour au Menu Commercial.")
         return input("Votre choix: ")
 
-    @staticmethod
-    def id_new_contract():
-        print("À partir de quel contrat souhaitez-vous créer un évènement?")
-        return input("ID du contrat: ")
-
-    @staticmethod
-    def new_customer_informations():
-        print("\n-----NOUVEAU CLIENT-----")
-        name_lastname = input("Nom et prénom du client: ")
-        email = input("Email du client: ")
-        phone = input("Numéro de téléphone du client: ")
-        bussines_name = input("Nom de l'entreprise: ")
-        return name_lastname, email, phone, bussines_name
-
-    @staticmethod
-    def new_event_informations():
-        print("\n-----NOUVEL EVENEMENT-----")
-        title = input("Intitulé de l'événement: ")
-        date_hour_start = input("Date et heure du début de l'événement (format AAAA-MM-DD HH:MM:SS): ")
-        date_hour_end = input("Date et heure du fin de l'événement (format AAAA-MM-DD HH:MM:SS): ")
-        adress = input("Adresse de l'événement: ")
-        guests = input("Nombre d'invités: ")
-        notes = input("Notes: ")
-        return title, date_hour_start, date_hour_end, adress, guests, notes
+class SalesSearchViews:
 
     @staticmethod
     def show_my_contracts_not_sign(name_lastname):
@@ -129,3 +88,57 @@ class SalesMenu:
                       f"Vendeur associé: {contract.sales_contact_contract}")
         else:
             print("Tous vos contrats ont l'air totalement réglés.")
+
+class SalesCustomerViews:
+
+    @staticmethod
+    def create_customer_view():
+        print("\n-----NOUVEAU CLIENT-----")
+        name_lastname = input("Nom et prénom du client: ")
+        email = input("Email du client: ")
+        while True:
+            phone = input("Téléphone du client: ")
+            if phone.isdigit():
+                phone = int(phone)
+                break
+            else:
+                print("Veuillez indiquer un numéro de téléphone.")
+        bussines_name = input("Nom commercial du client: ")
+        return name_lastname, email, phone, bussines_name
+
+    @staticmethod
+    def validation_customer_creation():
+        print("Votre client a été créé avec succès!")
+
+    @staticmethod
+    def update_customer_id_view():
+        print("Quel client souhaitez vous modifier?")
+        id = input("ID du cleint a modifier: ")
+        return id
+
+    @staticmethod
+    def update_customer_view(customer):
+        print(f"\n-----MISE A JOUR DU CLIENT N°{customer.id}-----")
+        name_lastname = input(f"Nom et prénom du client: {customer.name_lastname}")
+        email = input(f"Email du client: {customer.email}")
+        while True:
+            phone = input(f"Téléphone du client: {customer.phone}")
+            if phone == int:
+                break
+            else:
+                print("Veuillez indiquer un numéro de téléphone.")
+        bussines_name = input(f"Nom commercial du client: {customer.bussines_name}")
+        return name_lastname, email, phone, bussines_name
+
+    @staticmethod
+    def validation_update_customer_view():
+        print("La fiche de votre client a bien été modifié!")
+
+    @staticmethod
+    def not_in_charge_customer_view():
+        print("Vous n'êtes pas en change de ce client. Vous allez être redirigé vers le Menu Commercial.")
+
+    @staticmethod
+    def none_customer_view():
+        print("Erreur de frappe ou aucun client ne correspond a cette ID. Vous allez être redirigé vers le "
+              "Menu Commercial.")

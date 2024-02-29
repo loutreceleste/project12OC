@@ -7,19 +7,17 @@ from sqlalchemy import and_
 
 from database import session
 from model.management import User
-from view.authentification import MenuAuthentification
+from view.authentification import AuthentificationMenu, AuthenticationViews
 
 def create_jwt():
-    print("\n-----CREATION D'UN TOKEN D'AUTHENTIFICATION-----")
-    print("Attention, toute création de token engendrera un écrasement de l'ancien!")
-    name_lastname = input("Votre Nom et Prenom de votre compte: ")
-    password = input("Votre mot de passe: ")
+    name_lastname, password = AuthenticationViews.token_creation()
 
     user = session.query(User).filter(
         and_(
             User.name_lastname == name_lastname,
             User.password == password,
-        ).first())
+            )
+        ).limit(1).first()
 
     if user:
         payload = {"id": user.id, "name_lastname": user.name_lastname, "department": user.department,
@@ -31,26 +29,22 @@ def create_jwt():
         user.secret_key = hashlib.sha256(secret_key.encode()).hexdigest()
 
         session.commit()
-        print("Veuillez enregistrer votre token, assurez-vous de stocker vos jetons en toute sécurité et de ne "
-              "jamais les divulguer à des tiers non autorisés.")
-        print("Ce token expirera dans 2 jours à compter de maintenant.")
-        print(encoded_jwt)
-        MenuAuthentification.main_authentification_menu()
+        AuthenticationViews.token_print(encoded_jwt)
+        AuthentificationMenu.main_authentification_menu()
 
-    if user is None:
-        print("Identifiant ou mot de passe incorrect, vous allez être redirigée vers le Menu Authentifiaction.")
-        MenuAuthentification.main_authentification_menu()
+    else:
+        AuthenticationViews.error_authentication()
+        AuthentificationMenu.main_authentification_menu()
 
 
 def check_token():
-    print("\n-----CONNEXION AVEC VOTRE TOKEN-----")
-    token = input("Veuillez insérer votre token: ")
+    token = AuthenticationViews.token_cheking()
 
-    user = session.query(User).filter(User.token == token).first()
+    user = session.query(User).filter(User.token == token).limit(1).first()
     if user:
         if user.token_exp and user.token_exp < datetime.datetime.utcnow():
-            print("Votre token a expiré. Veuillez générer un nouveau token.")
-            MenuAuthentification.main_authentification_menu()
+            AuthenticationViews.expiration_date_token()
+            AuthentificationMenu.main_authentification_menu()
             return
 
         try:
@@ -58,17 +52,17 @@ def check_token():
 
             if decoded_jwt:
                 print("Connexion réussie avec votre token.")
-                MenuAuthentification.main_authentification_menu()
+                AuthentificationMenu.main_authentification_menu()
                 return user.name_lastname, user.department
             else:
-                print("Token invalide. Veuillez vérifier votre token et réessayer.")
-                MenuAuthentification.main_authentification_menu()
+                AuthenticationViews.invalid_token()
+                AuthentificationMenu.main_authentification_menu()
         except jwt.ExpiredSignatureError:
-            print("Le token a expiré. Veuillez générer un nouveau token.")
-            MenuAuthentification.main_authentification_menu()
+            AuthenticationViews.expiration_date_token()
+            AuthentificationMenu.main_authentification_menu()
         except jwt.InvalidTokenError:
-            print("Token invalide. Veuillez vérifier votre token et réessayer.")
-            MenuAuthentification.main_authentification_menu()
+            AuthenticationViews.invalid_token()
+            AuthentificationMenu.main_authentification_menu()
     else:
-        print("Token invalide. Veuillez vérifier votre token et réessayer.")
-        MenuAuthentification.main_authentification_menu()
+        AuthenticationViews.invalid_token()
+        AuthentificationMenu.main_authentification_menu()
