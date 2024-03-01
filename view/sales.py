@@ -1,7 +1,7 @@
 from sqlalchemy import and_
 
 from database import session
-from model.management import Contract
+
 
 class SalesMenu:
     @staticmethod
@@ -49,6 +49,7 @@ class SalesSearchViews:
 
     @staticmethod
     def show_my_contracts_not_sign(name_lastname):
+        from model.management import Contract
         print("\n---TOUS MES CONTRATS NON SIGNÉS---")
         contracts = session.query(Contract).filter(
             and_(
@@ -70,6 +71,7 @@ class SalesSearchViews:
 
     @staticmethod
     def show_my_contracts_remaining_amount(name_lastname):
+        from model.management import Contract
         print("\n---TOUS MES CONTRATS NON ENTIÈREMENT RÉGLÉS---")
         contracts = session.query(Contract).filter(
             and_(

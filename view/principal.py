@@ -1,6 +1,5 @@
 from sqlalchemy import or_
-from model.management import User, Contract, Event
-from model.sales import Customer
+from model.management import User, Contract, Event, Customer
 from database import session
 
 class MainSearch:
@@ -167,3 +166,7 @@ class MainView:
     @staticmethod
     def error_oui_non_input():
         print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
+
+    @staticmethod
+    def choise():
+        return input("Votre choix: ")

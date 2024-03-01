@@ -1,5 +1,5 @@
 from database import session
-from model.management import Event
+
 
 class SupportMenu:
     @staticmethod
@@ -39,6 +39,7 @@ class SupportMenu:
 
     @staticmethod
     def show_all_events_self_support(name_lastname):
+        from model.management import Event
         print("\n---TOUS LES EVENEMENTS DONT JE SUIS RESPONSABLE---")
         events = session.query(Event).filter(Event.support_contact == name_lastname).all()
         if events:
