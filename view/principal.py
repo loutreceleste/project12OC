@@ -42,7 +42,7 @@ class MainSearch:
                       f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.bussines_name}, "
                       f"Date de premier contact: {customer.date_first_contact}, "
                       f"Dernière mise à jour: {customer.last_date_update}, "
-                      f"Vendeur associé: {customer.sales_contact},")
+                      f"Vendeur associé: {customer.sales.name_lastname},")
         else:
             print("Aucun client pour le moment.")
 

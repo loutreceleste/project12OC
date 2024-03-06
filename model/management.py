@@ -17,60 +17,6 @@ def check_date_format(date_str):
     pattern = r"^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}$"
     return re.match(pattern, date_str)
 
-class Customer(Base):
-    __tablename__ = 'customers'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name_lastname = Column(String(45))
-    email = Column(String(45))
-    phone = Column(BigInteger)
-    bussines_name = Column(String(45))
-    date_first_contact = Column(DateTime, default=func.now())
-    last_date_update = Column(DateTime, default=func.now())
-    sales_contact = Column(Integer, ForeignKey('users.name_lastname'))
-
-    sales = relationship('User', back_populates='customer')
-
-    @classmethod
-    def create_customer(cls, user):
-        name_lastname, email, phone, bussines_name = SalesCustomerViews.create_customer_view()
-
-        new_customer = cls(name_lastname=name_lastname, email=email, phone=phone, bussines_name=bussines_name,
-                           sales_contact=user.name_lastname)
-
-        session.add(new_customer)
-        session.commit()
-        SalesCustomerViews.validation_customer_creation()
-        SalesMenu.sale_customers_menu()
-
-
-    @classmethod
-    def update_customer(cls, user):
-        id = SalesCustomerViews.update_customer_id_view()
-
-        customer = session.query(Customer).filter(Customer.id == id).limit(1)
-
-        if customer:
-            if customer.sales_contact == user.name_lastname:
-                name_lastname, email, phone, bussines_name = SalesCustomerViews.update_customer_view(customer)
-
-                customer.name_lastname = name_lastname
-                customer.email = email
-                customer.phone = phone
-                customer.bussines_name = bussines_name
-
-                session.commit()
-                SalesCustomerViews.validation_update_customer_view()
-                SalesMenu.sale_customers_menu()
-
-            else:
-                SalesCustomerViews.not_in_charge_customer_view()
-                SalesMenu.sale_customers_menu()
-
-        else:
-            SalesCustomerViews.none_customer_view()
-            SalesMenu.sale_customers_menu()
-
 class User(Base):
     __tablename__ = 'users'
 
@@ -82,13 +28,11 @@ class User(Base):
     token = Column(String(300))
     secret_key = Column(String(300))
 
-    customer = relationship('Customer', back_populates='sales')
-    contract = relationship('Contract', back_populates='sales')
-    event = relationship('Event', back_populates='support')
+    customer = relationship('Customer', back_populates='user')
+    event = relationship('Event', back_populates='user')
 
     @classmethod
-    def create_user(cls):
-        name_lastname, department, password, email = ManagementUserViews.create_user_view()
+    def create_user(cls, name_lastname, department, password, email):
 
         new_user = cls(name_lastname=name_lastname, department=department,
                        password=hashlib.sha256(password.encode()).hexdigest(), email=email)
@@ -128,7 +72,6 @@ class User(Base):
             ManagementUserViews.none_user_view()
             ManagementMenu.management_users_menu()
 
-
     @classmethod
     def update_user(cls):
         id = ManagementUserViews.update_user_id_view()
@@ -151,21 +94,73 @@ class User(Base):
             ManagementUserViews.none_user_view()
             ManagementMenu.management_users_menu()
 
+
+class Customer(Base):
+    __tablename__ = 'customers'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name_lastname = Column(String(45))
+    email = Column(String(45))
+    phone = Column(BigInteger)
+    bussines_name = Column(String(45))
+    date_first_contact = Column(DateTime, default=func.now())
+    last_date_update = Column(DateTime, default=func.now())
+    sales_id = Column(Integer, ForeignKey('users.id'), unique=True)
+
+    user = relationship('User', back_populates='customer')
+    contract = relationship('Contract', back_populates='customer')
+
+    @classmethod
+    def create_customer(cls, user):
+        name_lastname, email, phone, bussines_name = SalesCustomerViews.create_customer_view()
+
+        new_customer = cls(name_lastname=name_lastname, email=email, phone=phone, bussines_name=bussines_name,
+                           sales_contact=user.name_lastname)
+
+        session.add(new_customer)
+        session.commit()
+        SalesCustomerViews.validation_customer_creation()
+        SalesMenu.sale_customers_menu()
+
+    @classmethod
+    def update_customer(cls, user):
+        id = SalesCustomerViews.update_customer_id_view()
+
+        customer = session.query(Customer).filter(Customer.id == id).limit(1)
+
+        if customer:
+            if customer.sales_contact == user.name_lastname:
+                name_lastname, email, phone, bussines_name = SalesCustomerViews.update_customer_view(customer)
+
+                customer.name_lastname = name_lastname
+                customer.email = email
+                customer.phone = phone
+                customer.bussines_name = bussines_name
+
+                session.commit()
+                SalesCustomerViews.validation_update_customer_view()
+                SalesMenu.sale_customers_menu()
+
+            else:
+                SalesCustomerViews.not_in_charge_customer_view()
+                SalesMenu.sale_customers_menu()
+
+        else:
+            SalesCustomerViews.none_customer_view()
+            SalesMenu.sale_customers_menu()
+
+
 class Contract(Base):
     __tablename__ = 'contracts'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    customer_name_lastname = Column(String(45), ForeignKey('customers.name_lastname'))
-    customer_email = Column(String(45), ForeignKey('customers.email'))
-    customer_phone = Column(BigInteger, ForeignKey('customers.phone'))
+    customer_id = Column(Integer, ForeignKey('customers.id'), unique=True)
     total_amount = Column(Float, default=0)
     settled_amount = Column(Float, default=0)
     remaining_amount = Column(Float, default=0)
     creation_date = Column(DateTime, default=func.now())
     contract_sign = Column(Boolean, default=False)
-    sales_contact_contract = Column(String(45), ForeignKey('customers.sales_contact'))
 
-    sales = relationship('User', back_populates='contract')
     customer = relationship('Customer', back_populates='contract')
     event = relationship('Event', back_populates='contract')
 
@@ -254,24 +249,22 @@ class Contract(Base):
             ManagementContractViews.not_in_charge_contract_view()
             SalesMenu.sale_contracts_menu()
 
+
 class Event(Base):
     __tablename__ = 'events'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    contract_id = Column(Integer, ForeignKey('contracts.id'))
-    customer_name_lastname = Column(Integer, ForeignKey('contracts.id'))
-    customer_email = Column(String(45), ForeignKey('contracts.email'))
-    customer_phone = Column(BigInteger, ForeignKey('contracts.phone'))
+    contract_id = Column(Integer, ForeignKey('contracts.id'), unique=True)
     title = Column(String(45))
     date_hour_start = Column(DateTime)
     date_hour_end = Column(DateTime)
-    adress = Column(String(45))
+    address = Column(String(45))
     guests = Column(Integer, default=0)
     notes = Column(Text)
-    support_contact = Column(String(45), ForeignKey('users.name_lastname'))
+    support_contact = Column(Integer, ForeignKey('users.id'))
 
-    support = relationship('User', back_populates='event')
     contract = relationship('Contract', back_populates='event')
+    user = relationship('User', back_populates='event')
 
     @classmethod
     def create_event(cls):
@@ -373,4 +366,3 @@ class Event(Base):
         else:
             ManagementEventViews.not_in_charge_event_view()
             SupportMenu.support_events_menu()
-
