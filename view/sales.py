@@ -11,7 +11,6 @@ class SalesMenu:
         print("2) Menu contrats.")
         print("3) Menu evenements.")
         print("4) Quitter la session.")
-        return input("Votre choix: ")
 
     @staticmethod
     def sale_customers_menu():
@@ -22,7 +21,6 @@ class SalesMenu:
         print("4) Rechercher un client.")
         print("5) Afficher toutes les fiches clients auxquels je suis associé.")
         print("6) Retour au Menu Commercial.")
-        return input("Votre choix: ")
 
     @staticmethod
     def sale_contracts_menu():
@@ -34,7 +32,6 @@ class SalesMenu:
         print("5) Afficher tous mes contrats pas entièrement réglés.")
         print("6) Rechercher un contrat.")
         print("7) Retour au Menu Commercial.")
-        return input("Votre choix: ")
 
     @staticmethod
     def sale_events_menu():
@@ -43,13 +40,28 @@ class SalesMenu:
         print("2) Afficher tout les évènement.")
         print("3) Rechercher un évènement.")
         print("4) Retour au Menu Commercial.")
-        return input("Votre choix: ")
 
 class SalesSearchViews:
 
     @staticmethod
+    def show_my_customers(user):
+        from model.principal import Customer
+        print("\n---TOUS MES CLIENTS---")
+        customers = session.query(Customer).filter(Customer.sales_id == user.id).all()
+        if customers:
+            for customer in customers:
+                print(f"ID: {customer.id},  "
+                      f"Prénom et nom: {customer.name_lastname}, Email: {customer.email}, "
+                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.bussines_name}, "
+                      f"Date de premier contact: {customer.date_first_contact}, "
+                      f"Dernière mise à jour: {customer.last_date_update}, "
+                      f"Vendeur associé: {customer.sales.name_username},")
+        else:
+            print("Aucun client trouvé avec cette recherche.")
+
+    @staticmethod
     def show_my_contracts_not_sign(name_lastname):
-        from model.management import Contract
+        from model.principal import Contract
         print("\n---TOUS MES CONTRATS NON SIGNÉS---")
         contracts = session.query(Contract).filter(
             and_(
@@ -71,7 +83,7 @@ class SalesSearchViews:
 
     @staticmethod
     def show_my_contracts_remaining_amount(name_lastname):
-        from model.management import Contract
+        from model.principal import Contract
         print("\n---TOUS MES CONTRATS NON ENTIÈREMENT RÉGLÉS---")
         contracts = session.query(Contract).filter(
             and_(
@@ -144,3 +156,7 @@ class SalesCustomerViews:
     def none_customer_view():
         print("Erreur de frappe ou aucun client ne correspond a cette ID. Vous allez être redirigé vers le "
               "Menu Commercial.")
+
+    @staticmethod
+    def choise():
+        return input("Votre choix: ")

@@ -39,7 +39,7 @@ class SupportMenu:
 
     @staticmethod
     def show_all_events_self_support(name_lastname):
-        from model.management import Event
+        from model.principal import Event
         print("\n---TOUS LES EVENEMENTS DONT JE SUIS RESPONSABLE---")
         events = session.query(Event).filter(Event.support_contact == name_lastname).all()
         if events:

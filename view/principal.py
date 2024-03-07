@@ -1,5 +1,5 @@
 from sqlalchemy import or_
-from model.management import User, Contract, Event, Customer
+from model.principal import User, Contract, Event, Customer
 from database import session
 
 class MainSearch:

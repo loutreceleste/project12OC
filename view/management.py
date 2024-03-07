@@ -56,7 +56,7 @@ class ManagmentSearchViews:
 
     @staticmethod
     def show_all_events_no_support():
-        from model.management import Event
+        from model.principal import Event
         print("\n---TOUS LES EVENEMENTS SANS SUPPORT ASSOCIE---")
         events = session.query(Event).filter(Event.support_contact is None).all()
         if events:
@@ -254,8 +254,8 @@ class ManagementEventViews:
 
     @staticmethod
     def create_event_view():
-        from model.management import User
-        from model.management import check_date_format
+        from model.principal import User
+        from model.principal import check_date_format
         from view.principal import MainView
         print("\n-----NOUVEL EVENEMENT-----")
         title = input(f"Nom de l'événement: ")
@@ -325,8 +325,8 @@ class ManagementEventViews:
 
     @staticmethod
     def update_event_view(event, id):
-        from model.management import User
-        from model.management import check_date_format
+        from model.principal import User
+        from model.principal import check_date_format
         print(f"\n-----MISE A JOUR DE L'ÉVÉNEMENT N°{id}-----")
         title = input(f"Nom de l'événement: {event.title}")
         while True:

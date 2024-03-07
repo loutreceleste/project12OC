@@ -39,8 +39,7 @@ class User(Base):
 
         session.add(new_user)
         session.commit()
-        ManagementUserViews.validation_user_creation(name_lastname)
-        ManagementMenu.management_users_menu()
+
 
     @classmethod
     def delete_user(cls):
@@ -111,43 +110,29 @@ class Customer(Base):
     contract = relationship('Contract', back_populates='customer')
 
     @classmethod
-    def create_customer(cls, user):
-        name_lastname, email, phone, bussines_name = SalesCustomerViews.create_customer_view()
+    def create_customer(cls, user, name_lastname, email, phone, bussines_name):
 
         new_customer = cls(name_lastname=name_lastname, email=email, phone=phone, bussines_name=bussines_name,
                            sales_contact=user.name_lastname)
 
         session.add(new_customer)
         session.commit()
-        SalesCustomerViews.validation_customer_creation()
-        SalesMenu.sale_customers_menu()
 
     @classmethod
-    def update_customer(cls, user):
-        id = SalesCustomerViews.update_customer_id_view()
-
+    def find_customer(cls, id):
         customer = session.query(Customer).filter(Customer.id == id).limit(1)
+        return customer
 
-        if customer:
-            if customer.sales_contact == user.name_lastname:
-                name_lastname, email, phone, bussines_name = SalesCustomerViews.update_customer_view(customer)
+    @classmethod
+    def update_customer(cls, customer, name_lastname, email, phone, bussines_name):
 
-                customer.name_lastname = name_lastname
-                customer.email = email
-                customer.phone = phone
-                customer.bussines_name = bussines_name
+        customer.name_lastname = name_lastname
+        customer.email = email
+        customer.phone = phone
+        customer.bussines_name = bussines_name
 
-                session.commit()
-                SalesCustomerViews.validation_update_customer_view()
-                SalesMenu.sale_customers_menu()
+        session.commit()
 
-            else:
-                SalesCustomerViews.not_in_charge_customer_view()
-                SalesMenu.sale_customers_menu()
-
-        else:
-            SalesCustomerViews.none_customer_view()
-            SalesMenu.sale_customers_menu()
 
 
 class Contract(Base):

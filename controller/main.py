@@ -1,9 +1,6 @@
-import datetime
-import jwt
-
 from view.authentification import AuthentificationMenu, AuthenticationViews
 from view.principal import MainView
-from model.authentication import create_jwt, check_token, check_user, decode_tonken
+from model.authentication import create_jwt, check_token, check_user, decode_token
 
 
 class MainController(AuthentificationMenu):
@@ -29,7 +26,7 @@ def handle_authentication_choice(choice):
         user = check_token(token)
         if user:
 
-                decoded_jwt = decode_tonken(token, user)
+                decoded_jwt = decode_token(token, user)
                 if decoded_jwt:
                     print("Connexion réussie avec votre token.")
                     if user.department == 'COM':
@@ -43,8 +40,6 @@ def handle_authentication_choice(choice):
                 else:
                     AuthenticationViews.invalid_token()
                     MainController()
-
-                MainController()
         else:
             AuthenticationViews.invalid_token()
             MainController()
