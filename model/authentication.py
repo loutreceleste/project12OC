@@ -4,7 +4,7 @@ import jwt
 from cryptography.fernet import Fernet
 from sqlalchemy import and_
 from database import session
-from model.management import User
+from model.principal import User
 
 
 def create_jwt(user):

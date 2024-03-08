@@ -3,6 +3,7 @@ from sqlalchemy import and_
 from database import session
 
 
+
 class SalesMenu:
     @staticmethod
     def sale_menu():
@@ -47,25 +48,45 @@ class SalesSearchViews:
     def show_my_customers(user):
         from model.principal import Customer
         print("\n---TOUS MES CLIENTS---")
-        customers = session.query(Customer).filter(Customer.sales_id == user.id).all()
+        customers = session.query(Customer).filter(Customer.sales_contact == user.id).all()
         if customers:
             for customer in customers:
                 print(f"ID: {customer.id},  "
                       f"Prénom et nom: {customer.name_lastname}, Email: {customer.email}, "
-                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.bussines_name}, "
+                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.business_name}, "
                       f"Date de premier contact: {customer.date_first_contact}, "
                       f"Dernière mise à jour: {customer.last_date_update}, "
-                      f"Vendeur associé: {customer.sales.name_username},")
+                      f"Vendeur associé: {customer.user.name_lastname},")
         else:
             print("Aucun client trouvé avec cette recherche.")
 
     @staticmethod
-    def show_my_contracts_not_sign(name_lastname):
+    def show_my_contracts(user):
         from model.principal import Contract
+        from model.principal import Customer
+        print("\n---TOUS MES CONTRATS---")
+        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(Contract.id == user.id).all()
+        if contracts:
+            for contract in contracts:
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
+                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
+                      f"Total du contrat: {contract.contract_total_amount}, "
+                      f"Total déjà réglé: {contract.contract_settled_amount}, "
+                      f"Total reste à régler: {contract.contract_remaining_amount}, "
+                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
+        else:
+            print("Vous n'avez aucun contrat pour le moment.")
+
+    @staticmethod
+    def show_my_contracts_not_sign(user):
+        from model.principal import Contract
+        from model.principal import Customer
+        from model.principal import User
         print("\n---TOUS MES CONTRATS NON SIGNÉS---")
-        contracts = session.query(Contract).filter(
+        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(
             and_(
-                Contract.sales_contact_contract == name_lastname,
+                User.id == user.id,
                 Contract.contract_sign == False
             )
             ).all()
@@ -77,17 +98,19 @@ class SalesSearchViews:
                       f"Total déjà réglé: {contract.contract_settled_amount}, "
                       f"Total reste à régler: {contract.contract_remaining_amount}, "
                       f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {contract.sales_contact_contract}")
+                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
         else:
             print("Tous vos contrats ont l'air d'être signés.")
 
     @staticmethod
-    def show_my_contracts_remaining_amount(name_lastname):
+    def show_my_contracts_remaining_amount(user):
         from model.principal import Contract
+        from model.principal import Customer
+        from model.principal import User
         print("\n---TOUS MES CONTRATS NON ENTIÈREMENT RÉGLÉS---")
-        contracts = session.query(Contract).filter(
+        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(
             and_(
-                Contract.sales_contact_contract == name_lastname,
+                User.id == user.id,
                 Contract.remaining_amount > 0
             )
         ).all()
@@ -99,7 +122,7 @@ class SalesSearchViews:
                       f"Total déjà réglé: {contract.contract_settled_amount}, "
                       f"Total reste à régler: {contract.contract_remaining_amount}, "
                       f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {contract.sales_contact_contract}")
+                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
         else:
             print("Tous vos contrats ont l'air totalement réglés.")
 

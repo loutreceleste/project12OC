@@ -39,10 +39,10 @@ class MainSearch:
             for customer in customers:
                 print(f"ID: {customer.id},  "
                       f"Prénom et nom: {customer.name_lastname}, Email: {customer.email}, "
-                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.bussines_name}, "
+                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.business_name}, "
                       f"Date de premier contact: {customer.date_first_contact}, "
                       f"Dernière mise à jour: {customer.last_date_update}, "
-                      f"Vendeur associé: {customer.sales.name_lastname},")
+                      f"Vendeur associé: {customer.user.name_lastname},")
         else:
             print("Aucun client pour le moment.")
 
@@ -57,18 +57,18 @@ class MainSearch:
                 Customer.id == search,
                 Customer.name_lastname.startswith(f"%{search}%"),
                 Customer.email.startswith(f"%{search}%"),
-                Customer.bussines_name.startswith(f"%{search}%"),
+                Customer.business_name.startswith(f"%{search}%"),
                 Customer.sales_contact.startswith(f"%{search}%")
             )
-        ).all
+        ).all()
         if customers:
             for customer in customers:
                 print(f"ID: {customer.id},  "
                       f"Prénom et nom: {customer.name_lastname}, Email: {customer.email}, "
-                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.bussines_name}, "
+                      f"Téléphone: {customer.phone}, Nom d'entreprise: {customer.business_name}, "
                       f"Date de premier contact: {customer.date_first_contact}, "
                       f"Dernière mise à jour: {customer.last_date_update}, "
-                      f"Vendeur associé: {customer.sales_contact},")
+                      f"Vendeur associé: {customer.user.name_lastname},")
         else:
             print("Aucun client trouvé avec cette recherche.")
 
@@ -84,7 +84,7 @@ class MainSearch:
                       f"Total déjà réglé: {contract.contract_settled_amount}, "
                       f"Total reste à régler: {contract.contract_remaining_amount}, "
                       f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {contract.sales_contact_contract}")
+                      f"Vendeur associé: {contract.user.name_lastname}")
         else:
             print("Aucun contrat pour le moment.")
 
@@ -95,14 +95,14 @@ class MainSearch:
         search = input("Recherche: ")
 
         print("\n---RESULTAT DE LA RECHERCHE---")
-        contracts = session.query(Contract).filter(
+        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(
             or_(
                 Contract.id == search,
-                Contract.customer_name_lastname.startswith(f"%{search}%"),
-                Contract.contract_total_amount == search,
-                Contract.sales_contact_contract.startswith(f"%{search}%")
+                Customer.name_lastname.startswith(f"%{search}%"),
+                Contract.total_amount == search,
+                User.name_lastname.startswith(f"%{search}%")
             )
-        ).all
+        ).all()
         if contracts:
             for contract in contracts:
                 print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
@@ -111,22 +111,22 @@ class MainSearch:
                       f"Total déjà réglé: {contract.contract_settled_amount}, "
                       f"Total reste à régler: {contract.contract_remaining_amount}, "
                       f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {contract.sales_contact_contract}")
+                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
         else:
             print("Aucun contrat trouvé avec cette recherche.")
 
     @staticmethod
     def show_all_events():
         print("\n---TOUS LES EVENEMENTS---")
-        events = session.query(Event).all()
+        events = session.query(Event.contract).join(Contract.customer).outerjoin(Event.user).all()
         if events:
             for event in events:
                 print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
-                      f"Prénom et nom du client: {event.customer_name_lastname}, "
-                      f"Email du client: {event.customer_email}, Téléphone du client: {event.customer_phone}, "
+                      f"Prénom et nom du client: {Customer.name_lastname}, "
+                      f"Email du client: {Customer.email}, Téléphone du client: {Customer.phone}, "
                       f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
                       f"Date de fin: {event.date_hour_end}, Adresse: {event.adress}, Nombre de convives: {event.guests}, "
-                      f"Notes: {event.notes}, Support associé: {event.support_contact}")
+                      f"Notes: {event.notes}, Support associé: {User.name_lastname}")
         else:
             print("Aucun événement pour le moment.")
 
@@ -137,22 +137,22 @@ class MainSearch:
         search = input("Recherche: ")
 
         print("\n---RESULTAT DE LA RECHERCHE---")
-        events = session.query(Event).filter(
+        events = session.query(Event.contract).join(Contract.customer).outerjoin(Event.user).filter(
             or_(
                 Event.id == search,
-                Event.customer_name_lastname.startswith(f"%{search}%"),
+                Customer.name_lastname.startswith(f"%{search}%"),
                 Event.title.startswith(f"%{search}%"),
-                Event.support_contact.startswith(f"%{search}%")
+                User.name_lastname.startswith(f"%{search}%")
             )
         ).all
         if events:
             for event in events:
                 print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
-                      f"Prénom et nom du client: {event.customer_name_lastname}, "
-                      f"Email du client: {event.customer_email}, Téléphone du client: {event.customer_phone}, "
+                      f"Prénom et nom du client: {Customer.name_lastname}, "
+                      f"Email du client: {Customer.email}, Téléphone du client: {Customer.phone}, "
                       f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
                       f"Date de fin: {event.date_hour_end}, Adresse: {event.adress}, Nombre de convives: {event.guests}, "
-                      f"Notes: {event.notes}, Support associé: {event.support_contact}")
+                      f"Notes: {event.notes}, Support associé: {User.name_lastname}")
         else:
             print("Aucun événement trouvé avec cette recherche.")
 

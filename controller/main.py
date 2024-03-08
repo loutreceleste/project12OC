@@ -2,6 +2,8 @@ from view.authentification import AuthentificationMenu, AuthenticationViews
 from view.principal import MainView
 from model.authentication import create_jwt, check_token, check_user, decode_token
 
+from controller.sales import SalesController
+
 
 class MainController(AuthentificationMenu):
     def __init__(self):
@@ -25,12 +27,11 @@ def handle_authentication_choice(choice):
         token = AuthenticationViews.token_cheking()
         user = check_token(token)
         if user:
-
                 decoded_jwt = decode_token(token, user)
                 if decoded_jwt:
                     print("Connexion réussie avec votre token.")
                     if user.department == 'COM':
-                        print('COM')
+                        SalesController(user)
                     elif user.department == 'GES':
                         print('GES')
                     elif user.department == 'SUP':
