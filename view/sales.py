@@ -156,11 +156,12 @@ class SalesCustomerViews:
     @staticmethod
     def update_customer_view(customer):
         print(f"\n-----MISE A JOUR DU CLIENT N°{customer.id}-----")
-        name_lastname = input(f"Nom et prénom du client: {customer.name_lastname}")
+        name_lastname = input(f"Nom et prénom du client: ({customer.name_lastname})")
         email = input(f"Email du client: {customer.email}")
         while True:
             phone = input(f"Téléphone du client: {customer.phone}")
-            if phone == int:
+            if phone.isdigit():
+                phone = int(phone)
                 break
             else:
                 print("Veuillez indiquer un numéro de téléphone.")

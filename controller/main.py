@@ -1,3 +1,5 @@
+import jwt
+
 from view.authentification import AuthentificationMenu, AuthenticationViews
 from view.principal import MainView
 from model.authentication import create_jwt, check_token, check_user, decode_token
@@ -13,39 +15,51 @@ class MainController(AuthentificationMenu):
 
 def handle_authentication_choice(choice):
 
-    if choice == "1":
-        name_lastname, password = AuthenticationViews.token_creation()
-        user = check_user(name_lastname, password)
-        if user:
-            encoded_jwt = create_jwt(user)
-            AuthenticationViews.token_print(encoded_jwt)
-            MainController()
-        else:
-            AuthenticationViews.error_authentication()
-            MainController()
-    elif choice == "2":
-        token = AuthenticationViews.token_cheking()
-        user = check_token(token)
-        if user:
-                decoded_jwt = decode_token(token, user)
-                if decoded_jwt:
-                    print("Connexion réussie avec votre token.")
-                    if user.department == 'COM':
-                        SalesController(user)
-                    elif user.department == 'GES':
-                        print('GES')
-                    elif user.department == 'SUP':
-                        print('SUP')
+    while True:
+        if choice.isdigit():
+            choice = int(choice)
+            if 1 <= choice <= 3:
+                if choice == 1:
+                    name_lastname, password = AuthenticationViews.token_creation()
+                    user = check_user(name_lastname, password)
+                    if user:
+                        encoded_jwt = create_jwt(user)
+                        AuthenticationViews.token_print(encoded_jwt)
                     else:
-                        print("Impossible de récupérer le département de l'utilisateur.")
-                else:
-                    AuthenticationViews.invalid_token()
-                    MainController()
+                        AuthenticationViews.error_authentication()
+                elif choice == 2:
+                    token = AuthenticationViews.token_cheking()
+                    user = check_token(token)
+                    if user:
+                        try:
+                            decoded_jwt = decode_token(token, user)
+                            if decoded_jwt:
+                                print("Connexion réussie avec votre token.")
+                                if user.department == 'COM':
+                                    SalesController(user)
+                                elif user.department == 'GES':
+                                    print('GES')
+                                elif user.department == 'SUP':
+                                    print('SUP')
+                                else:
+                                    print("Impossible de récupérer le département de l'utilisateur.")
+                            else:
+                                AuthenticationViews.invalid_token()
+                        except jwt.ExpiredSignatureError:
+                            AuthenticationViews.expiration_date_token()
+                        except jwt.InvalidTokenError:
+                            AuthenticationViews.invalid_token()
+                    else:
+                        AuthenticationViews.invalid_token()
+                elif choice == 3:
+                    exit()
+            else:
+                print("Veuillez saisir un nombre entre 1 et 3!")
         else:
-            AuthenticationViews.invalid_token()
-            MainController()
-    elif choice == "3":
-        exit()
+            print("Veuillez saisir un nombre entier!")
+
+        MainController()
+        choice = MainView.choise()
 
 if __name__ == "__main__":
     MainController()

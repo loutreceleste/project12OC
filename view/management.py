@@ -7,10 +7,10 @@ class ManagementMenu:
     def management_menu():
         print(f"\n-----MENU GESTION-----")
         print("1) Menu collaborateurs.")
-        print("1) Menu clients.")
-        print("2) Menu contrats.")
-        print("3) Menu evenements.")
-        print("4) Quitter la session.")
+        print("2) Menu clients.")
+        print("3) Menu contrats.")
+        print("4) Menu evenements.")
+        print("5) Quitter la session.")
         return input("Votre choix: ")
 
     @staticmethod
@@ -19,9 +19,9 @@ class ManagementMenu:
         print("1) Créer un collaborateur.")
         print("2) Modifier un collaborateur.")
         print("3) Supprimer un collaborateur.")
-        print("3) Rechercher un collaborateur.")
-        print("4) Afficher tout les collaborateurs.")
-        print("5) Retour au Menu Gestion.")
+        print("4) Rechercher un collaborateur.")
+        print("5) Afficher tout les collaborateurs.")
+        print("6) Retour au Menu Gestion.")
         return input("Votre choix: ")
 
     @staticmethod
