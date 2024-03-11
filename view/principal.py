@@ -1,4 +1,6 @@
 from sqlalchemy import or_
+from sqlalchemy.orm import aliased
+
 from model.principal import User, Contract, Event, Customer
 from database import session
 
@@ -9,7 +11,7 @@ class MainSearch:
         print("\n---TOUS LES COLLABORATEURS---")
         users = session.query(User).all()
         for user in users:
-            print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.departement}, Email: {user.email}")
+            print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.department}, Email: {user.email}")
 
     @staticmethod
     def show_all_users_search():
@@ -24,10 +26,10 @@ class MainSearch:
                 User.department.startswith(f"%{search}%"),
                 User.email.startswith(f"%{search}%")
             )
-        ).all
+        ).all()
         if users:
             for user in users:
-                print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.departement}, Email: {user.email}")
+                print(f"ID: {user.id}, Nom: {user.name_lastname}, Département: {user.department}, Email: {user.email}")
         else:
             print("Aucun collaborateur trouvé avec cette recherche.")
 
@@ -75,16 +77,22 @@ class MainSearch:
     @staticmethod
     def show_all_contracts():
         print("\n---TOUS LES CONTRATS---")
-        contracts = session.query(Contract).all()
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        contracts = session.query(Contract). \
+            join(customer_alias, Contract.customer_id == customer_alias.id). \
+            join(user_alias, customer_alias.sales_contact == user_alias.id).all()
+
         if contracts:
             for contract in contracts:
-                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
-                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
-                      f"Total du contrat: {contract.contract_total_amount}, "
-                      f"Total déjà réglé: {contract.contract_settled_amount}, "
-                      f"Total reste à régler: {contract.contract_remaining_amount}, "
-                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {contract.user.name_lastname}")
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer.name_lastname}, "
+                      f"Email du client: {contract.customer.email}, Téléphone du client: {contract.customer.phone}, "
+                      f"Total du contrat: {contract.total_amount}, "
+                      f"Total déjà réglé: {contract.settled_amount}, "
+                      f"Total reste à régler: {contract.remaining_amount}, "
+                      f"Date de création: {contract.creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.customer.user.name_lastname}")
         else:
             print("Aucun contrat pour le moment.")
 
@@ -95,38 +103,51 @@ class MainSearch:
         search = input("Recherche: ")
 
         print("\n---RESULTAT DE LA RECHERCHE---")
-        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        contracts = session.query(Contract). \
+            join(customer_alias, Contract.customer_id == customer_alias.id). \
+            join(user_alias, customer_alias.sales_contact == user_alias.id).filter(
             or_(
                 Contract.id == search,
-                Customer.name_lastname.startswith(f"%{search}%"),
+                customer_alias.name_lastname.startswith(f"%{search}%"),
                 Contract.total_amount == search,
-                User.name_lastname.startswith(f"%{search}%")
+                user_alias.name_lastname.startswith(f"%{search}%")
             )
         ).all()
         if contracts:
             for contract in contracts:
-                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
-                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
-                      f"Total du contrat: {contract.contract_total_amount}, "
-                      f"Total déjà réglé: {contract.contract_settled_amount}, "
-                      f"Total reste à régler: {contract.contract_remaining_amount}, "
-                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer.name_lastname}, "
+                      f"Email du client: {contract.customer.email}, Téléphone du client: {contract.customer.phone}, "
+                      f"Total du contrat: {contract.total_amount}, "
+                      f"Total déjà réglé: {contract.settled_amount}, "
+                      f"Total reste à régler: {contract.remaining_amount}, "
+                      f"Date de création: {contract.creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.customer.user.name_lastname}")
         else:
             print("Aucun contrat trouvé avec cette recherche.")
 
     @staticmethod
     def show_all_events():
         print("\n---TOUS LES EVENEMENTS---")
-        events = session.query(Event.contract).join(Contract.customer).outerjoin(Event.user).all()
+        contract_alias = aliased(Contract)
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        events = session.query(Event).join(contract_alias, Event.contract). \
+            join(customer_alias, contract_alias.customer). \
+            outerjoin(user_alias, Event.user).all()
         if events:
             for event in events:
                 print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
-                      f"Prénom et nom du client: {Customer.name_lastname}, "
-                      f"Email du client: {Customer.email}, Téléphone du client: {Customer.phone}, "
+                      f"Prénom et nom du client: {event.contract.customer.name_lastname}, "
+                      f"Email du client: {event.contract.customer.email}, "
+                      f"Téléphone du client: {event.contract.customer.phone}, "
                       f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
-                      f"Date de fin: {event.date_hour_end}, Adresse: {event.adress}, Nombre de convives: {event.guests}, "
-                      f"Notes: {event.notes}, Support associé: {User.name_lastname}")
+                      f"Date de fin: {event.date_hour_end}, Adresse: {event.address}, "
+                      f"Nombre de convives: {event.guests}, Notes: {event.notes}, "
+                      f"Support associé: {event.user.name_lastname if event.user else 'Aucun support'}")
         else:
             print("Aucun événement pour le moment.")
 
@@ -137,7 +158,13 @@ class MainSearch:
         search = input("Recherche: ")
 
         print("\n---RESULTAT DE LA RECHERCHE---")
-        events = session.query(Event.contract).join(Contract.customer).outerjoin(Event.user).filter(
+        contract_alias = aliased(Contract)
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        events = session.query(Event).join(contract_alias, Event.contract). \
+            join(customer_alias, contract_alias.customer). \
+            outerjoin(user_alias, Event.user).filter(
             or_(
                 Event.id == search,
                 Customer.name_lastname.startswith(f"%{search}%"),
@@ -148,11 +175,13 @@ class MainSearch:
         if events:
             for event in events:
                 print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
-                      f"Prénom et nom du client: {Customer.name_lastname}, "
-                      f"Email du client: {Customer.email}, Téléphone du client: {Customer.phone}, "
+                      f"Prénom et nom du client: {event.contract.customer.name_lastname}, "
+                      f"Email du client: {event.contract.customer.email}, "
+                      f"Téléphone du client: {event.contract.customer.phone}, "
                       f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
-                      f"Date de fin: {event.date_hour_end}, Adresse: {event.adress}, Nombre de convives: {event.guests}, "
-                      f"Notes: {event.notes}, Support associé: {User.name_lastname}")
+                      f"Date de fin: {event.date_hour_end}, Adresse: {event.address}, "
+                      f"Nombre de convives: {event.guests}, Notes: {event.notes}, "
+                      f"Support associé: {event.user.name_lastname if event.user else 'Aucun support'}")
         else:
             print("Aucun événement trouvé avec cette recherche.")
 
@@ -160,12 +189,12 @@ class MainView:
 
     @staticmethod
     def oui_non_input():
-        response = input("Oui ou Non?").strip().lower()
+        response = input("Oui ou Non? ").strip().lower()
         return response
 
     @staticmethod
     def error_oui_non_input():
-        print("Erreur de frappe. Veuillez répondre par 'Oui' ou 'Non'.")
+        print("Erreur de frappe. Veuillez répondre par 'Oui' ou par 'Non'.")
 
     @staticmethod
     def choise():

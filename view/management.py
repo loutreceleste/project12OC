@@ -1,6 +1,7 @@
 from database import session
-
-
+from model.principal import User
+from model.principal import check_date_format
+from view.principal import MainView
 
 class ManagementMenu:
     @staticmethod
@@ -11,7 +12,6 @@ class ManagementMenu:
         print("3) Menu contrats.")
         print("4) Menu evenements.")
         print("5) Quitter la session.")
-        return input("Votre choix: ")
 
     @staticmethod
     def management_users_menu():
@@ -22,7 +22,6 @@ class ManagementMenu:
         print("4) Rechercher un collaborateur.")
         print("5) Afficher tout les collaborateurs.")
         print("6) Retour au Menu Gestion.")
-        return input("Votre choix: ")
 
     @staticmethod
     def management_customers_menu():
@@ -30,7 +29,6 @@ class ManagementMenu:
         print("1) Afficher toutes les fiches clients.")
         print("2) Rechercher un client.")
         print("3) Retour au Menu Gestion.")
-        return input("Votre choix: ")
 
     @staticmethod
     def management_contrats_menu():
@@ -40,7 +38,6 @@ class ManagementMenu:
         print("3) Afficher tout les contrats.")
         print("4) Rechercher un contrat.")
         print("5) Retour au Menu Gestion.")
-        return input("Votre choix: ")
 
     @staticmethod
     def management_events_menu():
@@ -50,24 +47,18 @@ class ManagementMenu:
         print("3) Rechercher un évènement.")
         print("4) Afficher tous les événements sans supports associés.")
         print("5) Retour au Menu Gestion.")
-        return input("Votre choix: ")
 
 class ManagmentSearchViews:
 
     @staticmethod
-    def show_all_events_no_support():
-        from model.principal import Event
+    def show_all_events_no_support(events):
         print("\n---TOUS LES EVENEMENTS SANS SUPPORT ASSOCIE---")
-        events = session.query(Event).filter(Event.support_contact is None).all()
-        if events:
-            for event in events:
-                print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
-                      f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
-                      f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
-                      f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
-                      f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
-        else:
-            print("Tous les événements ont l'air d'avoir été attribuées.")
+        for event in events:
+            print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
+                  f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
+                  f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
+                  f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
+                  f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
 
 class ManagementUserViews:
 
@@ -125,19 +116,19 @@ class ManagementUserViews:
     @staticmethod
     def update_user_view(user, id):
         print(f"\n-----MISE A JOUR DU COLLABORATEUR N°{id}-----")
-        name_lastname = input(f"Nom et prénom: {user.name_lastname}")
+        name_lastname = input(f"Nom et prénom: ({user.name_lastname})")
         print("\n-----LES DEPARTEMENTS A RESEIGNER:-----")
         print("-----COM: COMMERCIAL-----")
         print("-----GES: GESTION-----")
         print("-----SUP: SUPPORT-----")
         while True:
-            department = input(f"Departement: {user.departement}").upper()
+            department = input(f"Departement: ({user.department})").upper()
             if department in ('COM', 'GES', 'SUP'):
                 break
             else:
                 print("Département invalide. Veuillez choisir parmi 'COM', 'GES' ou 'SUP'.")
         password = input("Mot de passe (laissez vide pour ne pas modifier): ")
-        email = input(f"Email: {user.email}")
+        email = input(f"Email: ({user.email})")
         return name_lastname, department, password, email
 
     @staticmethod
@@ -170,8 +161,9 @@ class ManagementContractViews:
             else:
                 print("Veuillez indiquer un nombre entier.")
         while True:
-            contract_sign = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False): ")
-            if contract_sign in ('True', 'False'):
+            contract_sign_input = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False): ").lower()
+            if contract_sign_input in ('true', 'false'):
+                contract_sign = contract_sign_input == 'true'
                 break
             else:
                 print('Veuillez répondre par "True" ou par "False"')
@@ -218,9 +210,10 @@ class ManagementContractViews:
             else:
                 print("Veuillez indiquer un nombre entier.")
         while True:
-            contract_sign = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False): "
-                                  f"{contract.contract_sign}")
-            if contract_sign in ('True', 'False'):
+            contract_sign_input = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False):"
+                                        "{contract.contract_sign} ").lower()
+            if contract_sign_input in ('true', 'false'):
+                contract_sign = contract_sign_input == 'true'
                 break
             else:
                 print('Veuillez répondre par "True" ou par "False"')
@@ -254,9 +247,6 @@ class ManagementEventViews:
 
     @staticmethod
     def create_event_view():
-        from model.principal import User
-        from model.principal import check_date_format
-        from view.principal import MainView
         print("\n-----NOUVEL EVENEMENT-----")
         title = input(f"Nom de l'événement: ")
         while True:

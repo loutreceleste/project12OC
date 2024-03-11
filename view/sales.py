@@ -150,23 +150,27 @@ class SalesCustomerViews:
     @staticmethod
     def update_customer_id_view():
         print("Quel client souhaitez vous modifier?")
-        id = input("ID du cleint a modifier: ")
+        id = input("ID du client à modifier: ")
         return id
 
     @staticmethod
     def update_customer_view(customer):
         print(f"\n-----MISE A JOUR DU CLIENT N°{customer.id}-----")
+        print("Appuyez sur 'Entrée' afin de conserver l'information actuelle.")
         name_lastname = input(f"Nom et prénom du client: ({customer.name_lastname})")
-        email = input(f"Email du client: {customer.email}")
+        email = input(f"Email du client: ({customer.email})")
         while True:
-            phone = input(f"Téléphone du client: {customer.phone}")
-            if phone.isdigit():
-                phone = int(phone)
+            phone_input = input(f"Téléphone du client: ({customer.phone})")
+            if phone_input.strip() == "":
+                phone = customer.phone
+                break
+            elif phone_input.isdigit():
+                phone = int(phone_input)
                 break
             else:
                 print("Veuillez indiquer un numéro de téléphone.")
-        bussines_name = input(f"Nom commercial du client: {customer.bussines_name}")
-        return name_lastname, email, phone, bussines_name
+        business_name = input(f"Nom commercial du client: ({customer.business_name})")
+        return name_lastname, email, phone, business_name
 
     @staticmethod
     def validation_update_customer_view():

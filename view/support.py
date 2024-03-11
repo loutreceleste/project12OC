@@ -9,7 +9,6 @@ class SupportMenu:
         print("2) Menu contrats.")
         print("3) Menu evenements.")
         print("4) Quitter la session.")
-        return input("Votre choix: ")
 
     @staticmethod
     def support_customers_menu():
@@ -17,7 +16,6 @@ class SupportMenu:
         print("1) Afficher toutes les fiches clients.")
         print("2) Rechercher un client.")
         print("3) Retour au Menu Support.")
-        return input("Votre choix: ")
 
     @staticmethod
     def support_contrats_menu():
@@ -25,7 +23,6 @@ class SupportMenu:
         print("1) Afficher tout les contrats.")
         print("2) Rechercher un contrat.")
         print("3) Retour au Menu Support.")
-        return input("Votre choix: ")
 
     @staticmethod
     def support_events_menu():
@@ -35,13 +32,12 @@ class SupportMenu:
         print("3) Afficher tous les événements dont je suis responsable.")
         print("4) Rechercher un évènement.")
         print("5) Retour au Menu Support.")
-        return input("Votre choix: ")
 
     @staticmethod
-    def show_all_events_self_support(name_lastname):
+    def show_all_events_self_support(user):
         from model.principal import Event
         print("\n---TOUS LES EVENEMENTS DONT JE SUIS RESPONSABLE---")
-        events = session.query(Event).filter(Event.support_contact == name_lastname).all()
+        events = session.query(Event).filter(Event.support_contact == user.name_lastname).all()
         if events:
             for event in events:
                 print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "

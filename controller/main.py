@@ -1,11 +1,17 @@
 import jwt
+from sqlalchemy.orm import declarative_base
+
+from controller.management import ManagementController
+from controller.support import SupportController
+from controller.sales import SalesController
 
 from view.authentification import AuthentificationMenu, AuthenticationViews
 from view.principal import MainView
+
 from model.authentication import create_jwt, check_token, check_user, decode_token
 
-from controller.sales import SalesController
 
+Base = declarative_base()
 
 class MainController(AuthentificationMenu):
     def __init__(self):
@@ -38,9 +44,9 @@ def handle_authentication_choice(choice):
                                 if user.department == 'COM':
                                     SalesController(user)
                                 elif user.department == 'GES':
-                                    print('GES')
+                                    ManagementController(user)
                                 elif user.department == 'SUP':
-                                    print('SUP')
+                                    SupportController(user)
                                 else:
                                     print("Impossible de récupérer le département de l'utilisateur.")
                             else:

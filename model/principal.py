@@ -6,10 +6,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Text
 from sqlalchemy.orm import relationship
 from database import session
 
-from view.management import ManagementMenu, ManagementUserViews, ManagementContractViews, ManagementEventViews
-from view.support import SupportMenu
-from view.sales import SalesMenu, SalesCustomerViews
-
 
 Base = declarative_base()
 
@@ -32,67 +28,32 @@ class User(Base):
     event = relationship('Event', back_populates='user')
 
     @classmethod
-    def create_user(cls, name_lastname, department, password, email):
+    def find_user(cls, id):
+        user = session.query(User).filter(User.id == id).first()
+        return user
 
+    @classmethod
+    def create_user(cls, name_lastname, department, password, email):
         new_user = cls(name_lastname=name_lastname, department=department,
                        password=hashlib.sha256(password.encode()).hexdigest(), email=email)
 
         session.add(new_user)
         session.commit()
 
+    @classmethod
+    def delete_user(cls, user):
+        session.delete(user)
+        session.commit()
 
     @classmethod
-    def delete_user(cls):
-        from view.principal import MainView
-        id = ManagementUserViews.delete_user_id_view()
+    def update_user(cls, name_lastname, department, password, email, user):
+        user.name_lastname = name_lastname
+        user.departement = department
+        if password.strip():
+            user.password = hashlib.sha256(password.encode()).hexdigest()
+        user.email = email
 
-        user = session.query(User).filter(User.id == id).limit(1)
-        if user:
-            while True:
-                ManagementUserViews.confirmation_delete_user_view(user)
-                response = MainView.oui_non_input()
-
-                if response == "oui":
-                    session.delete(user)
-                    session.commit()
-                    ManagementUserViews.validation_delete_user_view(user)
-                    break
-
-                elif response == "non":
-                    ManagementUserViews.cancelation_delete_user_view()
-                    break
-
-                else:
-                    MainView.error_oui_non_input()
-
-            ManagementMenu.management_users_menu()
-
-        else:
-            ManagementUserViews.none_user_view()
-            ManagementMenu.management_users_menu()
-
-    @classmethod
-    def update_user(cls):
-        id = ManagementUserViews.update_user_id_view()
-
-        user = session.query(User).filter(User.id == id).limit(1)
-        if user:
-            name_lastname, department, password, email = ManagementUserViews.update_user_view(user, id)
-
-            user.name_lastname = name_lastname
-            user.departement = department
-            if password.strip():
-                user.password = hashlib.sha256(password.encode()).hexdigest()
-            user.email = email
-
-            session.commit()
-            ManagementUserViews.validation_update_user_view(user)
-            ManagementMenu.management_users_menu()
-
-        else:
-            ManagementUserViews.none_user_view()
-            ManagementMenu.management_users_menu()
-
+        session.commit()
 
 class Customer(Base):
     __tablename__ = 'customers'
@@ -110,8 +71,12 @@ class Customer(Base):
     contract = relationship('Contract', back_populates='customer')
 
     @classmethod
-    def create_customer(cls, user, name_lastname, email, phone, business_name):
+    def find_customer(cls, id):
+        customer = session.query(Customer).filter(Customer.id == id).first()
+        return customer
 
+    @classmethod
+    def create_customer(cls, user, name_lastname, email, phone, business_name):
         new_customer = cls(name_lastname=name_lastname, email=email, phone=phone, business_name=business_name,
                            sales_contact=user.id)
 
@@ -119,17 +84,15 @@ class Customer(Base):
         session.commit()
 
     @classmethod
-    def find_customer(cls, id):
-        customer = session.query(Customer).filter(Customer.id == id).first()
-        return customer
-
-    @classmethod
-    def update_customer(cls, customer, name_lastname, email, phone, business_name):
-
-        customer.name_lastname = name_lastname
-        customer.email = email
-        customer.phone = phone
-        customer.bussines_name = business_name
+    def update_customer(cls, customer, name_lastname=None, email=None, phone=None, business_name=None):
+        if name_lastname:
+            customer.name_lastname = name_lastname
+        if email:
+            customer.email = email
+        if phone:
+            customer.phone = phone
+        if business_name:
+            customer.business_name = business_name
 
         session.commit()
 
@@ -148,85 +111,25 @@ class Contract(Base):
     event = relationship('Event', back_populates='contract')
 
     @classmethod
-    def create_contract(cls):
-        from view.principal import MainView
-        id = ManagementContractViews.create_contract_id_customer_view()
-
-        customer = session.query(Customer).filter(Customer.id == id).limit(1)
-
-        if customer:
-            ManagementContractViews.confirmation_create_contract_view(customer)
-            response = MainView.oui_non_input()
-
-            while True:
-                if response == "oui":
-                    total_amount, settled_amount, contract_sign = ManagementContractViews.create_contract_view()
-
-                    new_contract = cls(customer_name_lastname=customer.name_lastname, customer_email=customer.email,
-                                       customer_phone=customer.phone, total_amount=total_amount,
-                                       settled_amount=settled_amount, contract_sign=contract_sign,
-                                       sales_contact_contract=customer.sales_contact)
-
-                    session.add(new_contract)
-                    session.commit()
-                    ManagementContractViews.validation_create_contract_view()
-                    break
-
-                if response == "non":
-                    ManagementContractViews.cancelation_create_contract_view()
-                    break
-
-                else:
-                    MainView.error_oui_non_input()
-
-            ManagementMenu.management_contrats_menu()
-
-        else:
-            ManagementContractViews.none_customer_view()
-            ManagementMenu.management_contrats_menu()
-
-    @classmethod
     def find_contract(cls, id):
         contract = session.query(Contract).filter(Contract.id == id).first()
         return contract
 
     @classmethod
-    def update_contract(cls, total_amount, settled_amount, contract_sign, contract):
+    def create_contract(cls, total_amount, settled_amount, contract_sign, customer):
+        new_contract = cls(customer_id=customer.id, total_amount=total_amount,
+                           settled_amount=settled_amount, contract_sign=contract_sign)
 
+        session.add(new_contract)
+        session.commit()
+
+    @classmethod
+    def update_contract(cls, total_amount, settled_amount, contract_sign, contract):
         contract.total_amount = total_amount
         contract.settled_amount = settled_amount
         contract.contract_sign = contract_sign
 
         session.commit()
-
-
-
-    @classmethod
-    def update_contract_for_sales(cls, user):
-        id = ManagementContractViews.update_contract_id_view()
-
-        contract = session.query(Contract).filter(Contract.id == id).limit(1)
-
-        if contract.sales_contact_contract == user.name_lastname:
-            if contract:
-                total_amount, settled_amount, contract_sign = ManagementContractViews.update_contract_view(contract, id)
-
-                contract.total_amount = total_amount
-                contract.settled_amount = settled_amount
-                contract.contract_sign = contract_sign
-
-                session.commit()
-                ManagementContractViews.validation_update_contract_view()
-                SalesMenu.sale_contracts_menu()
-
-            else:
-                ManagementContractViews.none_contract_view()
-                SalesMenu.sale_contracts_menu()
-
-        else:
-            ManagementContractViews.not_in_charge_contract_view()
-            SalesMenu.sale_contracts_menu()
-
 
 class Event(Base):
     __tablename__ = 'events'
@@ -245,9 +148,14 @@ class Event(Base):
     user = relationship('User', back_populates='event')
 
     @classmethod
-    def find_contract(cls, id):
-        contract = session.query(Contract).filter(Contract.id == id).first()
-        return contract
+    def find_event(cls, id):
+        event = session.query(Event).filter(Event.id == id).first()
+        return event
+
+    @classmethod
+    def find_event_without_support(cls):
+        events = session.query(Event).filter(Event.support_contact is None).all()
+        return events
 
     @classmethod
     def create_event(cls, contract, title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract):
@@ -258,59 +166,27 @@ class Event(Base):
         session.add(new_contract)
         session.commit()
 
+    @classmethod
+    def update_event(cls, event, title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract):
+
+        event.title = title
+        event.date_hour_start = date_hour_start
+        event.date_hour_end = date_hour_end
+        event.adress = address
+        event.guests = guests
+        event.notes = notes
+        event.support_contact = sales_contact_contract
+
+        session.commit()
 
     @classmethod
-    def update_event(cls):
-        id = ManagementEventViews.update_event_id_contract_view()
+    def update_event_for_support(cls, title, date_hour_start, date_hour_end, address, guests, notes, event):
 
-        event = session.query(Event).filter(Event.id == id).limit(1)
+        event.title = title
+        event.date_hour_start = date_hour_start
+        event.date_hour_end = date_hour_end
+        event.adress = address
+        event.guests = guests
+        event.notes = notes
 
-        if event:
-            title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract = (
-                ManagementEventViews.update_event_view(event, id))
-
-            event.title = title
-            event.date_hour_start = date_hour_start
-            event.date_hour_end = date_hour_end
-            event.adress = address
-            event.guests = guests
-            event.notes = notes
-            event.support_contact = sales_contact_contract
-
-            session.commit()
-            ManagementEventViews.validation_update_event_view()
-            ManagementMenu.management_events_menu()
-
-        else:
-            ManagementEventViews.none_event_view()
-            ManagementMenu.management_events_menu()
-
-    @classmethod
-    def update_event_for_support(cls, user):
-        id = ManagementEventViews.update_event_id_contract_view()
-
-        event = session.query(Event).filter(Event.id == id).limit(1)
-
-        if event.support_contact == user.name_lastname:
-            if event:
-                title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract = (
-                    ManagementEventViews.update_event_view(event, id))
-
-                event.title = title
-                event.date_hour_start = date_hour_start
-                event.date_hour_end = date_hour_end
-                event.adress = address
-                event.guests = guests
-                event.notes = notes
-
-                session.commit()
-                ManagementEventViews.validation_update_event_view()
-                SupportMenu.support_events_menu()
-
-            else:
-                ManagementEventViews.none_event_view()
-                SupportMenu.support_events_menu()
-
-        else:
-            ManagementEventViews.not_in_charge_event_view()
-            SupportMenu.support_events_menu()
+        session.commit()
