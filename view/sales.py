@@ -1,7 +1,5 @@
 from sqlalchemy import and_
-
 from database import session
-
 
 
 class SalesMenu:
@@ -65,16 +63,17 @@ class SalesSearchViews:
         from model.principal import Contract
         from model.principal import Customer
         print("\n---TOUS MES CONTRATS---")
-        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(Contract.id == user.id).all()
+        contracts = (session.query(Contract).join(Contract.customer).join(Customer.user).filter(Contract.id == user.id)
+                     .all())
         if contracts:
             for contract in contracts:
-                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
-                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
-                      f"Total du contrat: {contract.contract_total_amount}, "
-                      f"Total déjà réglé: {contract.contract_settled_amount}, "
-                      f"Total reste à régler: {contract.contract_remaining_amount}, "
-                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer.name_lastname}, "
+                      f"Email du client: {contract.customer.email}, Téléphone du client: {contract.customer.phone}"
+                      f"Total du contrat: {contract.total_amount}, "
+                      f"Total déjà réglé: {contract.settled_amount}, "
+                      f"Total reste à régler: {contract.remaining_amount}, "
+                      f"Date de création: {contract.creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.customer.user.name_lastname}")
         else:
             print("Vous n'avez aucun contrat pour le moment.")
 
@@ -92,13 +91,13 @@ class SalesSearchViews:
             ).all()
         if contracts:
             for contract in contracts:
-                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
-                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
-                      f"Total du contrat: {contract.contract_total_amount}, "
-                      f"Total déjà réglé: {contract.contract_settled_amount}, "
-                      f"Total reste à régler: {contract.contract_remaining_amount}, "
-                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer.name_lastname}, "
+                      f"Email du client: {contract.customer.email}, Téléphone du client: {contract.customer.phone}"
+                      f"Total du contrat: {contract.total_amount}, "
+                      f"Total déjà réglé: {contract.settled_amount}, "
+                      f"Total reste à régler: {contract.remaining_amount}, "
+                      f"Date de création: {contract.creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.customer.user.name_lastname}")
         else:
             print("Tous vos contrats ont l'air d'être signés.")
 
@@ -116,13 +115,13 @@ class SalesSearchViews:
         ).all()
         if contracts:
             for contract in contracts:
-                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer_name_lastname}, "
-                      f"Email du client: {contract.customer_email}, Téléphone du client: {contract.customer_phone}"
-                      f"Total du contrat: {contract.contract_total_amount}, "
-                      f"Total déjà réglé: {contract.contract_settled_amount}, "
-                      f"Total reste à régler: {contract.contract_remaining_amount}, "
-                      f"Date de création: {contract.contract_creation_date}, Contrat signé: {contract.contract_sign}, "
-                      f"Vendeur associé: {Contract.customer.user.name_lastname}")
+                print(f"ID: {contract.id}, Prénom et nom du client: {contract.customer.name_lastname}, "
+                      f"Email du client: {contract.customer.email}, Téléphone du client: {contract.customer.phone}"
+                      f"Total du contrat: {contract.total_amount}, "
+                      f"Total déjà réglé: {contract.settled_amount}, "
+                      f"Total reste à régler: {contract.remaining_amount}, "
+                      f"Date de création: {contract.creation_date}, Contrat signé: {contract.contract_sign}, "
+                      f"Vendeur associé: {contract.customer.user.name_lastname}")
         else:
             print("Tous vos contrats ont l'air totalement réglés.")
 

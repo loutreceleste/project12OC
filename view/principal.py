@@ -53,14 +53,16 @@ class MainSearch:
         print("Recherche avancée parmi l'ID, le nom, l'email le nom d'entreprise et le nom du contact commercial.")
         search = input("Recherche: ")
 
+        user_alias = aliased(User)
+
         print("\n---RESULTAT DE LA RECHERCHE---")
-        customers = session.query(Customer).filter(
+        customers = session.query(Customer).join(user_alias).filter(
             or_(
                 Customer.id == search,
                 Customer.name_lastname.startswith(f"%{search}%"),
                 Customer.email.startswith(f"%{search}%"),
                 Customer.business_name.startswith(f"%{search}%"),
-                Customer.sales_contact.startswith(f"%{search}%")
+                user_alias.name_lastname.startswith(f"%{search}%")
             )
         ).all()
         if customers:
@@ -136,8 +138,7 @@ class MainSearch:
         user_alias = aliased(User)
 
         events = session.query(Event).join(contract_alias, Event.contract). \
-            join(customer_alias, contract_alias.customer). \
-            outerjoin(user_alias, Event.user).all()
+            join(customer_alias, contract_alias.customer).outerjoin(user_alias, Event.user).all()
         if events:
             for event in events:
                 print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
@@ -153,8 +154,8 @@ class MainSearch:
 
     @staticmethod
     def show_all_events_search():
-        print("Recherche avancée parmi l'ID, le nom et prénom du client, le titire de l'événement ou le nom et prénom du "
-            "support associé.")
+        print("Recherche avancée parmi l'ID, le nom et prénom du client, le titire de l'événement ou le nom et prénom "
+              "du support associé.")
         search = input("Recherche: ")
 
         print("\n---RESULTAT DE LA RECHERCHE---")
@@ -162,16 +163,15 @@ class MainSearch:
         customer_alias = aliased(Customer)
         user_alias = aliased(User)
 
-        events = session.query(Event).join(contract_alias, Event.contract). \
-            join(customer_alias, contract_alias.customer). \
-            outerjoin(user_alias, Event.user).filter(
+        events = (session.query(Event).join(contract_alias, Event.contract).
+                  join(customer_alias, contract_alias.customer).outerjoin(user_alias, Event.user).filter(
             or_(
                 Event.id == search,
-                Customer.name_lastname.startswith(f"%{search}%"),
+                customer_alias.name_lastname.startswith(f"%{search}%"),
                 Event.title.startswith(f"%{search}%"),
-                User.name_lastname.startswith(f"%{search}%")
+                user_alias.name_lastname.startswith(f"%{search}%")
             )
-        ).all
+        ).all())
         if events:
             for event in events:
                 print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "

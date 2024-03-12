@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from view.management import ManagementContractViews, ManagementEventViews
 from view.sales import SalesMenu, SalesCustomerViews, SalesSearchViews
 from view.principal import MainView, MainSearch
@@ -25,7 +27,8 @@ def handle_sales_choise(choice, user):
                             choice = int(choice)
                             if 1 <= choice <= 6:
                                 if choice == 1:
-                                    name_lastname, email, phone, business_name = SalesCustomerViews.create_customer_view()
+                                    name_lastname, email, phone, business_name = (
+                                        SalesCustomerViews.create_customer_view())
                                     Customer.create_customer(user, name_lastname, email, phone, business_name)
                                     SalesCustomerViews.validation_customer_creation()
                                 if choice == 2:
@@ -33,8 +36,10 @@ def handle_sales_choise(choice, user):
                                     customer = Customer.find_customer(id)
                                     if customer:
                                         if customer.sales_contact == user.id:
-                                            name_lastname, email, phone, business_name = SalesCustomerViews.update_customer_view(customer)
-                                            Customer.update_customer(customer, name_lastname, email, phone, business_name)
+                                            name_lastname, email, phone, business_name = (
+                                                SalesCustomerViews.update_customer_view(customer))
+                                            Customer.update_customer(customer, name_lastname, email, phone,
+                                                                     business_name)
                                             SalesCustomerViews.validation_update_customer_view()
                                         else:
                                             SalesCustomerViews.not_in_charge_customer_view()
@@ -69,8 +74,10 @@ def handle_sales_choise(choice, user):
                                     contract = Contract.find_contract(id)
                                     if contract:
                                         if user.id == contract.customer.id:
-                                            total_amount, settled_amount, contract_sign = Contract.update_contract_view(contract, id)
-                                            Contract.update_contract(total_amount, settled_amount, contract_sign, contract)
+                                            total_amount, settled_amount, contract_sign = (
+                                                ManagementContractViews.update_contract_view(contract, id))
+                                            Contract.update_contract(contract, total_amount, settled_amount,
+                                                                     contract_sign)
                                             ManagementContractViews.validation_update_contract_view()
                                         else:
                                             SalesCustomerViews.not_in_charge_customer_view()
@@ -113,11 +120,15 @@ def handle_sales_choise(choice, user):
                                             response = MainView.oui_non_input()
                                             while True:
                                                 if response == "oui":
-                                                    title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract \
-                                                        = ManagementEventViews.create_event_view()
-                                                    Event.create_event(contract, title, date_hour_start, date_hour_end, address, guests,
-                                                                 notes, sales_contact_contract)
-                                                    ManagementEventViews.validation_create_event_view()
+                                                    (title, date_hour_start, date_hour_end, address, guests, notes,
+                                                     support_contact) = ManagementEventViews.create_event_view()
+                                                    try:
+                                                        Event.create_event(contract, title, date_hour_start,
+                                                                           date_hour_end, address, guests, notes,
+                                                                           support_contact)
+                                                        ManagementEventViews.validation_create_event_view()
+                                                    except sqlalchemy.exc.OperationalError:
+                                                        print("Impossible !")
                                                     break
                                                 if response == "non":
                                                     ManagementEventViews.cancelation_create_event_view()

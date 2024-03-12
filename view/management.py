@@ -1,7 +1,5 @@
 from database import session
-from model.principal import User
 from model.principal import check_date_format
-from view.principal import MainView
 
 class ManagementMenu:
     @staticmethod
@@ -66,6 +64,9 @@ class ManagementUserViews:
     def create_user_view():
         print("\n-----NOUVEAU COLLABORATEUR-----")
         name_lastname = input("Nom et prénom: ")
+        while not name_lastname.strip():
+            print("Le nom et prénom ne peuvent pas être vides.")
+            name_lastname = input("Nom et prénom: ")
         print("\n-----LES DEPARTEMENTS A RESEIGNER:-----")
         print("-----COM: COMMERCIAL-----")
         print("-----GES: GESTION-----")
@@ -121,12 +122,7 @@ class ManagementUserViews:
         print("-----COM: COMMERCIAL-----")
         print("-----GES: GESTION-----")
         print("-----SUP: SUPPORT-----")
-        while True:
-            department = input(f"Departement: ({user.department})").upper()
-            if department in ('COM', 'GES', 'SUP'):
-                break
-            else:
-                print("Département invalide. Veuillez choisir parmi 'COM', 'GES' ou 'SUP'.")
+        department = input(f"Departement: ({user.department})").upper()
         password = input("Mot de passe (laissez vide pour ne pas modifier): ")
         email = input(f"Email: ({user.email})")
         return name_lastname, department, password, email
@@ -195,28 +191,40 @@ class ManagementContractViews:
     @staticmethod
     def update_contract_view(contract, id):
         print(f"\n-----MISE A JOUR DU CONTRAT N°{id}-----")
-        while True:
-            total_amount = input(f"Cout total du contrat: {contract.contract_total_amount}")
-            if total_amount.isdigit():
-                total_amount = int(total_amount)
-                break
-            else:
-                print("Veuillez indiquer un nombre entier.")
-        while True:
-            settled_amount = input(f"Montant déjà réglé: {contract.settled_amount}")
-            if settled_amount.isdigit():
-                settled_amount = int(settled_amount)
-                break
-            else:
-                print("Veuillez indiquer un nombre entier.")
-        while True:
-            contract_sign_input = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False):"
-                                        "{contract.contract_sign} ").lower()
-            if contract_sign_input in ('true', 'false'):
-                contract_sign = contract_sign_input == 'true'
-                break
-            else:
-                print('Veuillez répondre par "True" ou par "False"')
+
+        total_amount = None
+        settled_amount = None
+        contract_sign = None
+
+        new_total_amount = input(f"Coût total du contrat ({contract.total_amount}): ")
+        if new_total_amount.strip() != '':
+            while True:
+                if new_total_amount.isdigit():
+                    total_amount = int(new_total_amount)
+                    break
+                else:
+                    print("Veuillez indiquer un nombre entier valide.")
+                    new_total_amount = input(f"Coût total du contrat ({contract.total_amount}): ")
+        new_settled_amount = input(f"Montant déjà réglé ({contract.settled_amount}): ")
+        if new_settled_amount.strip() != '':
+            while True:
+                if new_settled_amount.isdigit():
+                    settled_amount = int(new_settled_amount)
+                    break
+                else:
+                    print("Veuillez indiquer un nombre entier valide.")
+                    new_settled_amount = input(f"Montant déjà réglé ({contract.settled_amount}): ")
+        new_contract_sign_input = input("Le contrat a-t-il été validé par le client? (Oui=True / Non=False): ").lower()
+        if new_contract_sign_input.strip() != '':
+            while True:
+                if new_contract_sign_input in ('true', 'false'):
+                    contract_sign = new_contract_sign_input == 'true'
+                    break
+                else:
+                    print('Veuillez répondre par "True" ou par "False"')
+                    new_contract_sign_input = input(
+                        "Le contrat a-t-il été validé par le client? (Oui=True / Non=False): ").lower()
+
         return total_amount, settled_amount, contract_sign
 
     @staticmethod
@@ -242,7 +250,7 @@ class ManagementEventViews:
 
     @staticmethod
     def confirmation_create_event_view(contrat):
-        print(f"Souhaitez vous créer un événement pour le client {contrat.customer_name_lastname} à partir du "
+        print(f"Souhaitez vous créer un événement pour le client {contrat.customer.name_lastname} à partir du "
               f"contrat n°{contrat.id}?")
 
     @staticmethod
@@ -265,29 +273,13 @@ class ManagementEventViews:
         address = input(f"Adresse de l'événement: ")
         while True:
             guests = input(f"Nombre d'invitées: ")
-            if guests == int:
+            if guests.isdigit():
                 break
             else:
                 print("Veuillez indiquer un nombre entier.")
         notes = input(f"Notes: ")
-        while True:
-            sales_contact_contract = input(f"Support référent (Nom et prénom): ")
-            if sales_contact_contract is None:
-                break
-            support = session.query(User).filter(User.name_lastname == sales_contact_contract).first()
-            if support and support.department == "SUP":
-                print(f"Souhaitez vous assigner {support.name_lastname} a l'événement?")
-                response = MainView.oui_non_input()
-                if response == "oui":
-                    break
-                if response == "non":
-                    print("Merci de renseigner le nom et le prénom d'un support à assigner à l'événement.")
-                else:
-                    MainView.error_oui_non_input()
-            else:
-                print('Collaborateur inconnu de la base de données ou non attribué a la section "support". '
-                      "Merci de renseigner le nom et le prénom d'un collaborateur à assigner à l'événement.")
-        return title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract
+        support_contact = None
+        return title, date_hour_start, date_hour_end, address, guests, notes, support_contact
 
     @staticmethod
     def validation_create_event_view():

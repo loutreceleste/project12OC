@@ -47,11 +47,14 @@ class User(Base):
 
     @classmethod
     def update_user(cls, name_lastname, department, password, email, user):
-        user.name_lastname = name_lastname
-        user.departement = department
+        if name_lastname:
+            user.name_lastname = name_lastname
+        if department:
+            user.departement = department
         if password.strip():
             user.password = hashlib.sha256(password.encode()).hexdigest()
-        user.email = email
+        if email:
+            user.email = email
 
         session.commit()
 
@@ -84,7 +87,7 @@ class Customer(Base):
         session.commit()
 
     @classmethod
-    def update_customer(cls, customer, name_lastname=None, email=None, phone=None, business_name=None):
+    def update_customer(cls, customer, name_lastname, email, phone, business_name):
         if name_lastname:
             customer.name_lastname = name_lastname
         if email:
@@ -124,12 +127,16 @@ class Contract(Base):
         session.commit()
 
     @classmethod
-    def update_contract(cls, total_amount, settled_amount, contract_sign, contract):
-        contract.total_amount = total_amount
-        contract.settled_amount = settled_amount
-        contract.contract_sign = contract_sign
+    def update_contract(cls, contract, total_amount, settled_amount, contract_sign):
+        if total_amount:
+            contract.total_amount = total_amount
+        if settled_amount:
+            contract.settled_amount = settled_amount
+        if contract_sign:
+            contract.contract_sign = contract_sign
 
         session.commit()
+
 
 class Event(Base):
     __tablename__ = 'events'
@@ -158,35 +165,47 @@ class Event(Base):
         return events
 
     @classmethod
-    def create_event(cls, contract, title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract):
-        new_contract = cls(contract_id=contract.id, title=title,
-                           date_hour_start=date_hour_start, date_hour_end=date_hour_end,
-                           address=address, guests=guests, notes=notes, sales_contact_contract= sales_contact_contract)
+    def create_event(cls, contract, title, date_hour_start, date_hour_end, address, guests, notes, support_contact):
 
-        session.add(new_contract)
-        session.commit()
+            new_contract = cls(contract_id=contract.id, title=title,
+                               date_hour_start=date_hour_start, date_hour_end=date_hour_end,
+                               address=address, guests=guests, notes=notes, support_contact= support_contact)
+
+            session.add(new_contract)
+            session.commit()
 
     @classmethod
     def update_event(cls, event, title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract):
-
-        event.title = title
-        event.date_hour_start = date_hour_start
-        event.date_hour_end = date_hour_end
-        event.adress = address
-        event.guests = guests
-        event.notes = notes
-        event.support_contact = sales_contact_contract
+        if title:
+            event.title = title
+        if date_hour_start:
+            event.date_hour_start = date_hour_start
+        if date_hour_end:
+            event.date_hour_end = date_hour_end
+        if address:
+            event.adress = address
+        if guests:
+            event.guests = guests
+        if notes:
+            event.notes = notes
+        if sales_contact_contract:
+            event.support_contact = sales_contact_contract
 
         session.commit()
 
     @classmethod
-    def update_event_for_support(cls, title, date_hour_start, date_hour_end, address, guests, notes, event):
-
-        event.title = title
-        event.date_hour_start = date_hour_start
-        event.date_hour_end = date_hour_end
-        event.adress = address
-        event.guests = guests
-        event.notes = notes
+    def update_event_for_support(cls, event, title, date_hour_start, date_hour_end, address, guests, notes):
+        if title:
+            event.title = title
+        if date_hour_start:
+            event.date_hour_start = date_hour_start
+        if date_hour_end:
+            event.date_hour_end = date_hour_end
+        if address:
+            event.adress = address
+        if guests:
+            event.guests = guests
+        if notes:
+            event.notes = notes
 
         session.commit()

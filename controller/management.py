@@ -32,7 +32,8 @@ def handle_management_choise(choice, user):
                                     id = ManagementUserViews.update_user_id_view()
                                     user = User.find_user(id)
                                     if user:
-                                        name_lastname, department, password, email = ManagementUserViews.update_user_view(user, id)
+                                        name_lastname, department, password, email = (
+                                            ManagementUserViews.update_user_view(user, id))
                                         User.update_user(name_lastname, department, password, email, user)
                                         ManagementUserViews.validation_update_user_view(user)
                                     else:
@@ -106,8 +107,10 @@ def handle_management_choise(choice, user):
 
                                         while True:
                                             if response == "oui":
-                                                total_amount, settled_amount, contract_sign = ManagementContractViews.create_contract_view()
-                                                Contract.create_contract(total_amount, settled_amount, contract_sign, customer)
+                                                total_amount, settled_amount, contract_sign = (
+                                                    ManagementContractViews.create_contract_view())
+                                                Contract.create_contract(total_amount, settled_amount, contract_sign,
+                                                                         customer)
                                                 ManagementContractViews.validation_create_contract_view()
                                                 break
 
@@ -122,10 +125,10 @@ def handle_management_choise(choice, user):
                                     id = ManagementContractViews.update_contract_id_view()
                                     contract = Contract.find_contract(id)
                                     if contract:
-                                        total_amount, settled_amount, contract_sign = Contract.update_contract_view(
-                                            contract, id)
-                                        Contract.update_contract(total_amount, settled_amount, contract_sign,
-                                                                 contract)
+                                        total_amount, settled_amount, contract_sign = (
+                                            ManagementContractViews.update_contract_view(
+                                            contract, id))
+                                        Contract.update_contract(contract, total_amount, settled_amount, contract_sign)
                                         ManagementContractViews.validation_update_contract_view()
                                     else:
                                         ManagementContractViews.none_contract_view()
@@ -153,9 +156,10 @@ def handle_management_choise(choice, user):
                                     id = ManagementEventViews.update_event_id_contract_view()
                                     event = Event.find_event(id)
                                     if event:
-                                        title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract = (
-                                            ManagementEventViews.update_event_view(event, id))
-                                        Event.update_event(title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract, event)
+                                        (title, date_hour_start, date_hour_end, address, guests, notes,
+                                         sales_contact_contract) = (ManagementEventViews.update_event_view(event, id))
+                                        Event.update_event(title, date_hour_start, date_hour_end, address, guests,
+                                                           notes, sales_contact_contract, event)
                                         ManagementEventViews.validation_update_event_view()
                                     else:
                                         ManagementEventViews.none_event_view()
