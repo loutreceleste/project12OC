@@ -65,7 +65,7 @@ def handle_management_choise(choice, user):
                             else:
                                 print("Veuillez saisir un nombre entre 1 et 6!")
                         else:
-                            print("Veuillez saisir un nombre entier!")
+                            MainView.message_no_whole_number()
 
                         ManagementMenu.management_users_menu()
                         choice = MainView.choise()
@@ -86,7 +86,7 @@ def handle_management_choise(choice, user):
                             else:
                                 print("Veuillez saisir un nombre entre 1 et 3!")
                         else:
-                            print("Veuillez saisir un nombre entier!")
+                            MainView.message_no_whole_number()
 
                         ManagementMenu.management_customers_menu()
                         choice = MainView.choise()
@@ -141,7 +141,7 @@ def handle_management_choise(choice, user):
                             else:
                                 print("Veuillez saisir un nombre entre 1 et 5!")
                         else:
-                            print("Veuillez saisir un nombre entier!")
+                            MainView.message_no_whole_number()
 
                         ManagementMenu.management_contrats_menu()
                         choice = MainView.choise()
@@ -157,9 +157,9 @@ def handle_management_choise(choice, user):
                                     event = Event.find_event(id)
                                     if event:
                                         (title, date_hour_start, date_hour_end, address, guests, notes,
-                                         sales_contact_contract) = (ManagementEventViews.update_event_view(event, id))
-                                        Event.update_event(title, date_hour_start, date_hour_end, address, guests,
-                                                           notes, sales_contact_contract, event)
+                                         support_id) = (ManagementEventViews.update_event_view(event, id))
+                                        Event.update_event(event, title, date_hour_start, date_hour_end, address,
+                                                           guests, notes, support_id)
                                         ManagementEventViews.validation_update_event_view()
                                     else:
                                         ManagementEventViews.none_event_view()
@@ -172,13 +172,13 @@ def handle_management_choise(choice, user):
                                     if events:
                                         ManagmentSearchViews.show_all_events_no_support(events)
                                     else:
-                                        print("Tous les événements ont l'air d'avoir été attribuées.")
+                                        ManagementEventViews.all_event_assigned()
                                 elif choice == 5:
                                     ManagementController(user)
                             else:
                                 print("Veuillez saisir un nombre entre 1 et 5!")
                         else:
-                            print("Veuillez saisir un nombre entier!")
+                            MainView.message_no_whole_number()
 
                         ManagementMenu.management_events_menu()
                         choice = MainView.choise()
@@ -189,7 +189,7 @@ def handle_management_choise(choice, user):
             else:
                 print("Veuillez saisir un nombre entre 1 et 5!")
         else:
-            print("Veuillez saisir un nombre entier!")
+            MainView.message_no_whole_number()
 
         ManagementController(user)
         choice = MainView.choise()

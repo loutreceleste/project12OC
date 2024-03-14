@@ -53,10 +53,13 @@ class ManagmentSearchViews:
         print("\n---TOUS LES EVENEMENTS SANS SUPPORT ASSOCIE---")
         for event in events:
             print(f"ID: {event.id}, Contrat associé: {event.contract_id}, "
-                  f"Client associé: {event.event_customer_id}, Support associé: {event.event_support_id}, "
-                  f"Nom de l'événement: {event.event_title}, Date de début: {event.event_date_start}, "
-                  f"Date de fin: {event.event_date_end}, Adresse: {event.event_adress}, "
-                  f"Nombre de convives: {event.event_guests}, Notes: {event.event_notes}")
+                  f"Prénom et nom du client: {event.contract.customer.name_lastname}, "
+                  f"Email du client: {event.contract.customer.email}, "
+                  f"Téléphone du client: {event.contract.customer.phone}, "
+                  f"Nom de l'événement: {event.title}, Date de début: {event.date_hour_start}, "
+                  f"Date de fin: {event.date_hour_end}, Adresse: {event.address}, "
+                  f"Nombre de convives: {event.guests}, Notes: {event.notes}, "
+                  f"Support associé: {event.user.name_lastname if event.user else 'Aucun support'}")
 
 class ManagementUserViews:
 
@@ -72,7 +75,7 @@ class ManagementUserViews:
         print("-----GES: GESTION-----")
         print("-----SUP: SUPPORT-----")
         while True:
-            department = input("Departement: ").upper()
+            department = input("Département: ").upper()
             if department in ('COM', 'GES', 'SUP'):
                 break
             else:
@@ -101,12 +104,11 @@ class ManagementUserViews:
 
     @staticmethod
     def cancelation_delete_user_view():
-        print("Suppression annulée. Vous allez être redirigé vers le Menu Collaborateur.")
+        print("Suppression annulée.")
 
     @staticmethod
     def none_user_view():
-        print("Erreur de frappe ou aucun collaborateur ne correspond a cette ID. Vous allez être redirigé vers le "
-              "Menu Collaborateur.")
+        print("Erreur de frappe ou aucun collaborateur ne correspond a cette ID.")
 
     @staticmethod
     def update_user_id_view():
@@ -117,14 +119,15 @@ class ManagementUserViews:
     @staticmethod
     def update_user_view(user, id):
         print(f"\n-----MISE A JOUR DU COLLABORATEUR N°{id}-----")
-        name_lastname = input(f"Nom et prénom: ({user.name_lastname})")
+        print("Appuyez sur 'Entrée' afin de conserver l'information actuelle.")
+        name_lastname = input(f"Nom et prénom ({user.name_lastname}): ")
         print("\n-----LES DEPARTEMENTS A RESEIGNER:-----")
         print("-----COM: COMMERCIAL-----")
         print("-----GES: GESTION-----")
         print("-----SUP: SUPPORT-----")
-        department = input(f"Departement: ({user.department})").upper()
+        department = input(f"Departement ({user.department}): ").upper()
         password = input("Mot de passe (laissez vide pour ne pas modifier): ")
-        email = input(f"Email: ({user.email})")
+        email = input(f"Email ({user.email}): ")
         return name_lastname, department, password, email
 
     @staticmethod
@@ -171,16 +174,15 @@ class ManagementContractViews:
 
     @staticmethod
     def cancelation_create_contract_view():
-        print("Création annulée. Vous allez être redirigée vers le Menu Contrat.")
+        print("Création annulée.")
 
     @staticmethod
     def none_customer_view():
-        print("Erreur de frappe ou aucun client ne correspond a cette ID. Vous allez être redirigé vers le "
-              "Menu Contrat.")
+        print("Erreur de frappe ou aucun client ne correspond a cette ID.")
 
     @staticmethod
     def confirmation_create_contract_view(customer):
-        print(f"Souhaitez vous créer un contrat pour le client {customer.name_lastname}?")
+        print(f"Souhaitez-vous créer un contrat pour le client {customer.name_lastname}?")
 
     @staticmethod
     def update_contract_id_view():
@@ -191,6 +193,7 @@ class ManagementContractViews:
     @staticmethod
     def update_contract_view(contract, id):
         print(f"\n-----MISE A JOUR DU CONTRAT N°{id}-----")
+        print("Appuyez sur 'Entrée' afin de conserver l'information actuelle.")
 
         total_amount = None
         settled_amount = None
@@ -233,12 +236,11 @@ class ManagementContractViews:
 
     @staticmethod
     def none_contract_view():
-        print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
-              "Menu Contrat.")
+        print("Erreur de frappe ou aucun contrat ne correspond a cette ID.")
 
     @staticmethod
     def not_in_charge_contract_view():
-        print("Vous n'êtes pas en charge de ce contrat. Vous allez être redirigé vers le Menu Contrat.")
+        print("Vous n'êtes pas en charge de ce contrat.")
 
 class ManagementEventViews:
 
@@ -258,18 +260,18 @@ class ManagementEventViews:
         print("\n-----NOUVEL EVENEMENT-----")
         title = input(f"Nom de l'événement: ")
         while True:
-            date_hour_start = input(f"Date et heure du début de l'événement (format AAAA/MM/JJ HH:MM:SS): ")
+            date_hour_start = input(f"Date et heure du début de l'événement (format AAAA-MM-JJ HH:MM:SS): ")
             if check_date_format(date_hour_start):
                 break
             else:
-                print("Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
+                print("Format invalide. Veuillez saisir la date et l'heure au format AAAA-MM-JJ HH:MM:SS.")
         while True:
-            date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA/MM/JJ HH:MM:SS): ")
+            date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA-MM-JJ HH:MM:SS): ")
             if check_date_format(date_hour_end):
                 break
             else:
                 print(
-                    "Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
+                    "Format invalide. Veuillez saisir la date et l'heure au format AAAA-MM-JJ HH:MM:SS.")
         address = input(f"Adresse de l'événement: ")
         while True:
             guests = input(f"Nombre d'invitées: ")
@@ -287,7 +289,7 @@ class ManagementEventViews:
 
     @staticmethod
     def cancelation_create_event_view():
-        print("Création annulée. Vous allez être redirigée vers le Menu Événement.")
+        print("Création annulée.")
 
     @staticmethod
     def not_sign_contract_view(contrat):
@@ -296,8 +298,7 @@ class ManagementEventViews:
 
     @staticmethod
     def none_event_view():
-        print("Erreur de frappe ou aucun contrat ne correspond a cette ID. Vous allez être redirigé vers le "
-              "Menu Événement.")
+        print("Erreur de frappe ou aucun contrat ne correspond a cette ID.")
 
     @staticmethod
     def update_event_id_contract_view():
@@ -308,41 +309,59 @@ class ManagementEventViews:
     @staticmethod
     def update_event_view(event, id):
         from model.principal import User
-        from model.principal import check_date_format
+
+        support_id = None
+
         print(f"\n-----MISE A JOUR DE L'ÉVÉNEMENT N°{id}-----")
         title = input(f"Nom de l'événement: {event.title}")
         while True:
-            date_hour_start = input(f"Date et heure du début de l'événement (format AAAA/MM/JJ HH:MM:SS)"
-                                    f": {event.date_hour_start}")
-            if check_date_format(date_hour_start):
-                break
+            date_hour_start_input = input(f"Date et heure du début de l'événement (format AAAA-MM-JJ HH:MM:SS) "
+                                          f"({event.date_hour_start}): ")
+            if date_hour_start_input.strip() != '':
+                if check_date_format(date_hour_start_input):
+                    date_hour_start = date_hour_start_input
+                    break
+                else:
+                    print("Format invalide. Veuillez saisir la date et l'heure au format AAAA-MM-JJ HH:MM:SS.")
             else:
-                print("Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-        while True:
-            date_hour_end = input(f"Date et heure de fin de l'événement (format AAAA/MM/JJ HH:MM:SS):"
-                                  f" {event.date_hour_end}")
-            if check_date_format(date_hour_end):
+                date_hour_start = event.date_hour_start
                 break
+        while True:
+            date_hour_end_input = input(f"Date et heure de fin de l'événement (format AAAA-MM-JJ HH:MM:SS) "
+                                        f"({event.date_hour_end}): ")
+            if date_hour_end_input.strip() != '':
+                if check_date_format(date_hour_end_input):
+                    date_hour_end = date_hour_end_input
+                    break
+                else:
+                    print("Format invalide. Veuillez saisir la date et l'heure au format AAAA-MM-JJ HH:MM:SS.")
             else:
-                print(
-                    "Format invalide. Veuillez saisir la date et l'heure au format AAAA/MM/JJ HH:MM:SS.")
-        address = input(f"Adresse de l'événement: {event.adress}")
-        while True:
-            guests = input(f"Nombre d'invitées: {event.guests}")
-            if guests == int:
+                date_hour_end = event.date_hour_end
                 break
+        address = input(f"Adresse de l'événement ({event.address}): ")
+        while True:
+            guests_input = input(f"Nombre d'invités ({event.guests}): ")
+            if guests_input.strip() != '':
+                if guests_input.isdigit():
+                    guests = int(guests_input)
+                    break
+                else:
+                    print("Veuillez indiquer un nombre entier.")
             else:
-                print("Veuillez indiquer un nombre entier.")
-        notes = input(f"Notes: {event.notes}")
-        while True:
-            sales_contact_contract = input(f"Support référent (Nom et prénom): {event.support_contact}")
-            if sales_contact_contract is None:
+                guests = event.guests
                 break
-            support = session.query(User).filter(User.name_lastname == sales_contact_contract).first()
+        notes = input(f"Notes ({event.notes}): ")
+        while True:
+            support_contact = input(f"Support référent (Nom et prénom) ({event.support_contact}): ")
+            if support_contact is None:
+                break
+            support = session.query(User).filter(User.name_lastname == support_contact).first()
+
             if support and support.department == "SUP":
                 print(f"Souhaitez vous assigner {support.name_lastname} a l'événement?")
                 response = input("Oui ou Non?").strip().lower()
                 if response == "oui":
+                    support_id = support.id
                     break
                 if response == "non":
                     print("Merci de renseigner le nom et le prénom d'un support à assigner à l'événement.")
@@ -351,7 +370,7 @@ class ManagementEventViews:
             else:
                 print('Collaborateur inconnu de la base de données ou non attribué a la section "support". '
                       "Merci de renseigner le nom et le prénom d'un collaborateur à assigner à l'événement.")
-        return title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract
+        return title, date_hour_start, date_hour_end, address, guests, notes, support_id
 
     @staticmethod
     def validation_update_event_view():
@@ -359,4 +378,8 @@ class ManagementEventViews:
 
     @staticmethod
     def not_in_charge_event_view():
-        print("Vous n'êtes pas en change de cette événement. Vous allez être redirigé vers le Menu Événement.")
+        print("Vous n'êtes pas en change de cette événement.")
+
+    @staticmethod
+    def all_event_assigned():
+        print("Tous les événements ont l'air d'avoir été attribuées.")

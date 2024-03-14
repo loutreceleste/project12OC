@@ -1,6 +1,6 @@
 from view.management import ManagementEventViews
 from view.principal import MainView, MainSearch
-from view.support import SupportMenu
+from view.support import SupportMenu, SupportViews
 from model.principal import Event
 
 
@@ -32,7 +32,7 @@ def handle_support_choise(choice, user):
                             else:
                                 print("Veuillez saisir un nombre entre 1 et 3!")
                         else:
-                            print("Veuillez saisir un nombre entier!")
+                            MainView.message_no_whole_number()
                 if choice == 2:
                     SupportMenu.support_contrats_menu()
                     choice = MainView.choise()
@@ -49,7 +49,7 @@ def handle_support_choise(choice, user):
                             else:
                                 print("Veuillez saisir un nombre entre 1 et 3!")
                         else:
-                            print("Veuillez saisir un nombre entier!")
+                            MainView.message_no_whole_number()
                 if choice == 3:
                     while True:
                         SupportMenu.support_events_menu()
@@ -74,7 +74,11 @@ def handle_support_choise(choice, user):
                                 elif choice == 2:
                                     MainSearch.show_all_events()
                                 elif choice == 3:
-                                    SupportMenu.show_all_events_self_support(user)
+                                    events = Event.find_event_by_support(user)
+                                    if events:
+                                        SupportViews.show_all_events_self_support(events)
+                                    else:
+                                        SupportViews.not_assigned_event()
                                 elif choice == 4:
                                     MainSearch.show_all_events_search()
                                 elif choice == 5:
@@ -82,13 +86,13 @@ def handle_support_choise(choice, user):
                             else:
                                 print("Veuillez saisir un nombre entre 1 et 5!")
                         else:
-                            print("Veuillez saisir un nombre entier!")
+                            MainView.message_no_whole_number()
                 if choice == 4:
                     exit()
             else:
                 print("Veuillez saisir un nombre entre 1 et 4!")
         else:
-            print("Veuillez saisir un nombre entier!")
+            MainView.message_no_whole_number()
 
         SupportController(user)
         choice = MainView.choise()

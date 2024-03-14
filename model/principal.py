@@ -2,7 +2,7 @@ import hashlib
 import re
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Text, Enum, Float, Boolean, BigInteger
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Text, Enum, Float, Boolean, BigInteger, and_
 from sqlalchemy.orm import relationship
 from database import session
 
@@ -10,7 +10,7 @@ from database import session
 Base = declarative_base()
 
 def check_date_format(date_str):
-    pattern = r"^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}$"
+    pattern = r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$"
     return re.match(pattern, date_str)
 
 class User(Base):
@@ -74,6 +74,11 @@ class Customer(Base):
     contract = relationship('Contract', back_populates='customer')
 
     @classmethod
+    def find_customer_by_user(cls, user):
+        customers = session.query(Customer).filter(Customer.sales_contact == user.id).all()
+        return customers
+
+    @classmethod
     def find_customer(cls, id):
         customer = session.query(Customer).filter(Customer.id == id).first()
         return customer
@@ -119,6 +124,32 @@ class Contract(Base):
         return contract
 
     @classmethod
+    def find_contract_by_user(cls, user):
+        contracts = (session.query(Contract).join(Contract.customer).join(Customer.user).filter(User.id == user.id)
+                     .all())
+        return contracts
+
+    @classmethod
+    def find_contract_not_sign(cls, user):
+        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(
+            and_(
+                User.id == user.id,
+                Contract.contract_sign == False
+            )
+        ).all()
+        return contracts
+
+    @classmethod
+    def find_contract_remaining_amount(cls, user):
+        contracts = session.query(Contract).join(Contract.customer).join(Customer.user).filter(
+            and_(
+                User.id == user.id,
+                Contract.remaining_amount > 0
+            )
+        ).all()
+        return contracts
+
+    @classmethod
     def create_contract(cls, total_amount, settled_amount, contract_sign, customer):
         new_contract = cls(customer_id=customer.id, total_amount=total_amount,
                            settled_amount=settled_amount, contract_sign=contract_sign)
@@ -161,7 +192,12 @@ class Event(Base):
 
     @classmethod
     def find_event_without_support(cls):
-        events = session.query(Event).filter(Event.support_contact is None).all()
+        events = session.query(Event).filter(None == Event.support_contact).all()
+        return events
+
+    @classmethod
+    def find_event_by_support(cls, user):
+        events = session.query(Event).filter(Event.support_contact == user.name_lastname).all()
         return events
 
     @classmethod
@@ -175,7 +211,7 @@ class Event(Base):
             session.commit()
 
     @classmethod
-    def update_event(cls, event, title, date_hour_start, date_hour_end, address, guests, notes, sales_contact_contract):
+    def update_event(cls, event, title, date_hour_start, date_hour_end, address, guests, notes, support_id):
         if title:
             event.title = title
         if date_hour_start:
@@ -183,13 +219,13 @@ class Event(Base):
         if date_hour_end:
             event.date_hour_end = date_hour_end
         if address:
-            event.adress = address
+            event.address = address
         if guests:
             event.guests = guests
         if notes:
             event.notes = notes
-        if sales_contact_contract:
-            event.support_contact = sales_contact_contract
+        if support_id:
+            event.support_contact = support_id
 
         session.commit()
 

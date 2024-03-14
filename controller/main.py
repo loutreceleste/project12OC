@@ -40,7 +40,7 @@ def handle_authentication_choice(choice):
                         try:
                             decoded_jwt = decode_token(token, user)
                             if decoded_jwt:
-                                print("Connexion réussie avec votre token.")
+                                MainView.message_connection_token()
                                 if user.department == 'COM':
                                     SalesController(user)
                                 elif user.department == 'GES':
@@ -48,7 +48,7 @@ def handle_authentication_choice(choice):
                                 elif user.department == 'SUP':
                                     SupportController(user)
                                 else:
-                                    print("Impossible de récupérer le département de l'utilisateur.")
+                                    MainView.message_no_department()
                             else:
                                 AuthenticationViews.invalid_token()
                         except jwt.ExpiredSignatureError:
@@ -62,7 +62,7 @@ def handle_authentication_choice(choice):
             else:
                 print("Veuillez saisir un nombre entre 1 et 3!")
         else:
-            print("Veuillez saisir un nombre entier!")
+            MainView.message_no_whole_number()
 
         MainController()
         choice = MainView.choise()

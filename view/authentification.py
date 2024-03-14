@@ -13,7 +13,7 @@ class AuthenticationViews:
     def token_creation():
         print("\n-----CREATION D'UN TOKEN D'AUTHENTIFICATION-----")
         print("Attention, toute création de token engendrera un écrasement de l'ancien!")
-        name_lastname = input("Votre Nom et Prenom de votre compte: ")
+        name_lastname = input("Nom et Prenom de votre compte: ")
         password = input("Votre mot de passe: ")
         return name_lastname, password
 

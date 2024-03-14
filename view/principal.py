@@ -199,3 +199,15 @@ class MainView:
     @staticmethod
     def choise():
         return input("Votre choix: ")
+
+    @staticmethod
+    def message_connection_token():
+        print("Connexion réussie avec votre token.")
+
+    @staticmethod
+    def message_no_department():
+        print("Impossible de récupérer le département de l'utilisateur.")
+
+    @staticmethod
+    def message_no_whole_number():
+        print("Veuillez saisir un nombre entier!")
