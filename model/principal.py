@@ -1,7 +1,7 @@
 import hashlib
 import re
 
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Text, Enum, Float, Boolean, BigInteger, \
     and_, or_
 from sqlalchemy.orm import relationship, aliased
