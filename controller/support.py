@@ -59,7 +59,7 @@ def handle_support_choise(choice, user):
                             if 1 <= choice <= 5:
                                 if choice == 1:
                                     id = ManagementEventViews.update_event_id_contract_view()
-                                    event = Event.find_event(id)
+                                    event = Event.find_event_by_id(id)
                                     if event.support_contact == user.name_lastname:
                                         if event:
                                             title, date_hour_start, date_hour_end, address, guests, notes = (

@@ -1,5 +1,6 @@
 from database import session
 from model.principal import check_date_format
+from model.principal import User
 
 class ManagementMenu:
     @staticmethod
@@ -308,8 +309,6 @@ class ManagementEventViews:
 
     @staticmethod
     def update_event_view(event, id):
-        from model.principal import User
-
         support_id = None
 
         print(f"\n-----MISE A JOUR DE L'ÉVÉNEMENT N°{id}-----")

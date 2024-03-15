@@ -2,8 +2,9 @@ import hashlib
 import re
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Text, Enum, Float, Boolean, BigInteger, and_
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Text, Enum, Float, Boolean, BigInteger, \
+    and_, or_
+from sqlalchemy.orm import relationship, aliased
 from database import session
 
 
@@ -28,9 +29,26 @@ class User(Base):
     event = relationship('Event', back_populates='user')
 
     @classmethod
-    def find_user(cls, id):
+    def find_user(cls):
+        users = session.query(User).all()
+        return users
+
+    @classmethod
+    def find_user_by_id(cls, id):
         user = session.query(User).filter(User.id == id).first()
         return user
+
+    @classmethod
+    def find_user_by_search(cls, search):
+        users = session.query(User).filter(
+            or_(
+                User.id == search,
+                User.name_lastname.startswith(f"%{search}%"),
+                User.department.startswith(f"%{search}%"),
+                User.email.startswith(f"%{search}%")
+            )
+        ).all()
+        return users
 
     @classmethod
     def create_user(cls, name_lastname, department, password, email):
@@ -74,14 +92,33 @@ class Customer(Base):
     contract = relationship('Contract', back_populates='customer')
 
     @classmethod
+    def find_customer(cls):
+        customers = session.query(Customer).all()
+        return customers
+
+    @classmethod
     def find_customer_by_user(cls, user):
         customers = session.query(Customer).filter(Customer.sales_contact == user.id).all()
         return customers
 
     @classmethod
-    def find_customer(cls, id):
+    def find_customer_by_id(cls, id):
         customer = session.query(Customer).filter(Customer.id == id).first()
         return customer
+
+    @classmethod
+    def find_customer_by_search(cls, search):
+        user_alias = aliased(User)
+        customers = session.query(Customer).join(user_alias).filter(
+            or_(
+                Customer.id == search,
+                Customer.name_lastname.startswith(f"%{search}%"),
+                Customer.email.startswith(f"%{search}%"),
+                Customer.business_name.startswith(f"%{search}%"),
+                user_alias.name_lastname.startswith(f"%{search}%")
+            )
+        ).all()
+        return customers
 
     @classmethod
     def create_customer(cls, user, name_lastname, email, phone, business_name):
@@ -119,7 +156,34 @@ class Contract(Base):
     event = relationship('Event', back_populates='contract')
 
     @classmethod
-    def find_contract(cls, id):
+    def find_contract(cls):
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        contracts = session.query(Contract). \
+            join(customer_alias, Contract.customer_id == customer_alias.id). \
+            join(user_alias, customer_alias.sales_contact == user_alias.id).all()
+        return contracts
+
+    @classmethod
+    def find_contract_by_search(cls, search):
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        contracts = session.query(Contract). \
+            join(customer_alias, Contract.customer_id == customer_alias.id). \
+            join(user_alias, customer_alias.sales_contact == user_alias.id).filter(
+            or_(
+                Contract.id == search,
+                customer_alias.name_lastname.startswith(f"%{search}%"),
+                Contract.total_amount == search,
+                user_alias.name_lastname.startswith(f"%{search}%")
+            )
+        ).all()
+        return contracts
+
+    @classmethod
+    def find_contract_by_id(cls, id):
         contract = session.query(Contract).filter(Contract.id == id).first()
         return contract
 
@@ -186,7 +250,34 @@ class Event(Base):
     user = relationship('User', back_populates='event')
 
     @classmethod
-    def find_event(cls, id):
+    def find_event(cls):
+        contract_alias = aliased(Contract)
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        events = session.query(Event).join(contract_alias, Event.contract). \
+            join(customer_alias, contract_alias.customer).outerjoin(user_alias, Event.user).all()
+        return events
+
+    @classmethod
+    def find_event_by_search(cls, search):
+        contract_alias = aliased(Contract)
+        customer_alias = aliased(Customer)
+        user_alias = aliased(User)
+
+        events = (session.query(Event).join(contract_alias, Event.contract).
+                  join(customer_alias, contract_alias.customer).outerjoin(user_alias, Event.user).filter(
+            or_(
+                Event.id == search,
+                customer_alias.name_lastname.startswith(f"%{search}%"),
+                Event.title.startswith(f"%{search}%"),
+                user_alias.name_lastname.startswith(f"%{search}%")
+            )
+        ).all())
+        return events
+
+    @classmethod
+    def find_event_by_id(cls, id):
         event = session.query(Event).filter(Event.id == id).first()
         return event
 

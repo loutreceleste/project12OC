@@ -10,8 +10,12 @@ from view.principal import MainView
 
 from model.authentication import create_jwt, check_token, check_user, decode_token
 
+from sentry_config import initialize_sentry
+
 
 Base = declarative_base()
+
+initialize_sentry()
 
 class MainController(AuthentificationMenu):
     def __init__(self):
@@ -20,7 +24,6 @@ class MainController(AuthentificationMenu):
         handle_authentication_choice(choice)
 
 def handle_authentication_choice(choice):
-
     while True:
         if choice.isdigit():
             choice = int(choice)

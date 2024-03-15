@@ -30,7 +30,7 @@ def handle_management_choise(choice, user):
                                     ManagementUserViews.validation_user_creation(name_lastname)
                                 if choice == 2:
                                     id = ManagementUserViews.update_user_id_view()
-                                    user = User.find_user(id)
+                                    user = User.find_user_by_id(id)
                                     if user:
                                         name_lastname, department, password, email = (
                                             ManagementUserViews.update_user_view(user, id))
@@ -40,7 +40,7 @@ def handle_management_choise(choice, user):
                                         ManagementUserViews.none_user_view()
                                 if choice == 3:
                                     id = ManagementUserViews.delete_user_id_view()
-                                    user = User.find_user(id)
+                                    user = User.find_user_by_id(id)
                                     if user:
                                         while True:
                                             ManagementUserViews.confirmation_delete_user_view(user)
@@ -57,9 +57,18 @@ def handle_management_choise(choice, user):
                                     else:
                                         ManagementUserViews.none_user_view()
                                 if choice == 4:
-                                    MainSearch.show_all_users_search()
+                                    search = MainSearch.search_all_users_search()
+                                    users = User.find_user_by_search(search)
+                                    if users:
+                                        MainSearch.show_all_users_search(users)
+                                    else:
+                                        MainView.message_no_user_whith_search()
                                 if choice == 5:
-                                    MainSearch.show_all_users()
+                                    users = User.find_user()
+                                    if users:
+                                        MainSearch.show_all_users(users)
+                                    else:
+                                        MainView.message_no_user()
                                 if choice == 6:
                                     ManagementController(user)
                             else:
@@ -78,9 +87,18 @@ def handle_management_choise(choice, user):
                             choice = int(choice)
                             if 1 <= choice <= 3:
                                 if choice == 1:
-                                    MainSearch.show_all_customers()
+                                    customers = Customer.find_customer()
+                                    if customers:
+                                        MainSearch.show_all_customers(customers)
+                                    else:
+                                        MainView.message_no_customer()
                                 elif choice == 2:
-                                    MainSearch.show_all_customers_search()
+                                    search = MainSearch.search_all_customers_search()
+                                    customers = Customer.find_customer_by_search(search)
+                                    if customers:
+                                        MainSearch.show_all_customers_search(customers)
+                                    else:
+                                        MainView.message_no_customer_whith_search()
                                 elif choice == 3:
                                     ManagementController(user)
                             else:
@@ -100,7 +118,7 @@ def handle_management_choise(choice, user):
                             if 1 <= choice <= 5:
                                 if choice == 1:
                                     id = ManagementContractViews.create_contract_id_customer_view()
-                                    customer = Customer.find_customer(id)
+                                    customer = Customer.find_customer_by_id(id)
                                     if customer:
                                         ManagementContractViews.confirmation_create_contract_view(customer)
                                         response = MainView.oui_non_input()
@@ -123,7 +141,7 @@ def handle_management_choise(choice, user):
                                         ManagementContractViews.none_customer_view()
                                 elif choice == 2:
                                     id = ManagementContractViews.update_contract_id_view()
-                                    contract = Contract.find_contract(id)
+                                    contract = Contract.find_contract_by_id(id)
                                     if contract:
                                         total_amount, settled_amount, contract_sign = (
                                             ManagementContractViews.update_contract_view(
@@ -133,9 +151,18 @@ def handle_management_choise(choice, user):
                                     else:
                                         ManagementContractViews.none_contract_view()
                                 elif choice == 3:
-                                    MainSearch.show_all_contracts()
+                                    contracts = Contract.find_contract()
+                                    if contracts:
+                                        MainSearch.show_all_contracts(contracts)
+                                    else:
+                                        MainView.message_no_contract()
                                 elif choice == 4:
-                                    MainSearch.show_all_contracts_search()
+                                    search = MainSearch.search_all_contracts_search()
+                                    contracts = Contract.find_contract_by_search(search)
+                                    if contracts:
+                                        MainSearch.show_all_contracts_search(contracts)
+                                    else:
+                                        MainView.message_no_contract_whith_search()
                                 elif choice == 5:
                                     ManagementController(user)
                             else:
@@ -154,7 +181,7 @@ def handle_management_choise(choice, user):
                             if 1 <= choice <= 5:
                                 if choice == 1:
                                     id = ManagementEventViews.update_event_id_contract_view()
-                                    event = Event.find_event(id)
+                                    event = Event.find_event_by_id(id)
                                     if event:
                                         (title, date_hour_start, date_hour_end, address, guests, notes,
                                          support_id) = (ManagementEventViews.update_event_view(event, id))
@@ -164,9 +191,18 @@ def handle_management_choise(choice, user):
                                     else:
                                         ManagementEventViews.none_event_view()
                                 elif choice == 2:
-                                    MainSearch.show_all_events()
+                                    events = Event.find_event()
+                                    if events:
+                                        MainSearch.show_all_events(events)
+                                    else:
+                                        MainView.message_no_event()
                                 elif choice == 3:
-                                    MainSearch.show_all_events_search()
+                                    search = MainSearch.search_all_events_search()
+                                    events = MainSearch.show_all_events_search(search)
+                                    if events:
+                                        MainSearch.show_all_events_search(events)
+                                    else:
+                                        MainView.message_no_event_whith_search()
                                 elif choice == 4:
                                     events = Event.find_event_without_support()
                                     if events:

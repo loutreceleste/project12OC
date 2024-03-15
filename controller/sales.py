@@ -33,7 +33,7 @@ def handle_sales_choise(choice, user):
                                     SalesCustomerViews.validation_customer_creation()
                                 if choice == 2:
                                     id = SalesCustomerViews.update_customer_id_view()
-                                    customer = Customer.find_customer(id)
+                                    customer = Customer.find_customer_by_id(id)
                                     if customer:
                                         if customer.sales_contact == user.id:
                                             name_lastname, email, phone, business_name = (
@@ -75,7 +75,7 @@ def handle_sales_choise(choice, user):
                             if 1 <= choice <= 7:
                                 if choice == 1:
                                     id = ManagementContractViews.update_contract_id_view()
-                                    contract = Contract.find_contract(id)
+                                    contract = Contract.find_contract_by_id(id)
                                     if contract:
                                         if user.id == contract.customer.id:
                                             total_amount, settled_amount, contract_sign = (
@@ -129,7 +129,7 @@ def handle_sales_choise(choice, user):
                             if 1 <= choice <= 4:
                                 if choice == 1:
                                     id = ManagementEventViews.create_event_id_contract_view()
-                                    contract = Contract.find_contract(id)
+                                    contract = Contract.find_contract_by_id(id)
                                     if user.id == contract.customer.sales_contact:
                                         if contract:
                                             if contract.contract_sign:
