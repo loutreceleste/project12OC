@@ -26,6 +26,7 @@ def create_jwt(user):
 
     return encoded_jwt
 
+
 def check_user(name_lastname, password):
     user = session.query(User).filter(
         and_(
@@ -35,9 +36,11 @@ def check_user(name_lastname, password):
     ).limit(1).first()
     return user
 
+
 def check_token(token):
     user = session.query(User).filter(User.token == token).first()
     return user
+
 
 def decode_token(token, user):
     secret_key_bytes = user.secret_key.encode('utf-8')

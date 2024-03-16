@@ -10,6 +10,7 @@ class SupportController(SupportMenu):
         choice = MainView.choise()
         handle_support_choise(choice, user)
 
+
 def handle_support_choise(choice, user):
 
     while True:
@@ -30,7 +31,8 @@ def handle_support_choise(choice, user):
                                 elif choice == 3:
                                     SupportController(user)
                             else:
-                                print("Veuillez saisir un nombre entre 1 et 3!")
+                                print("Veuillez saisir un nombre entre 1 et "
+                                      "3!")
                         else:
                             MainView.message_no_whole_number()
                 if choice == 2:
@@ -47,7 +49,8 @@ def handle_support_choise(choice, user):
                                 elif choice == 3:
                                     SupportController(user)
                             else:
-                                print("Veuillez saisir un nombre entre 1 et 3!")
+                                print("Veuillez saisir un nombre entre 1 et "
+                                      "3!")
                         else:
                             MainView.message_no_whole_number()
                 if choice == 3:
@@ -58,25 +61,36 @@ def handle_support_choise(choice, user):
                             choice = int(choice)
                             if 1 <= choice <= 5:
                                 if choice == 1:
-                                    id = ManagementEventViews.update_event_id_contract_view()
+                                    id = (ManagementEventViews.
+                                          update_event_id_contract_view())
                                     event = Event.find_event_by_id(id)
-                                    if event.support_contact == user.name_lastname:
+                                    if (event.support_contact ==
+                                            user.name_lastname):
                                         if event:
-                                            title, date_hour_start, date_hour_end, address, guests, notes = (
-                                                ManagementEventViews.update_event_view(event, id))
-                                            Event.update_event_for_support(title, date_hour_start, date_hour_end,
-                                                                           address, guests, notes, event)
-                                            ManagementEventViews.validation_update_event_view()
+                                            (title, date_hour_start,
+                                             date_hour_end, address, guests,
+                                             notes) = (
+                                                ManagementEventViews.
+                                                update_event_view(event, id))
+                                            Event.update_event_for_support(
+                                                title, date_hour_start,
+                                                date_hour_end, address, guests,
+                                                notes, event)
+                                            (ManagementEventViews.
+                                             validation_update_event_view())
                                         else:
-                                            ManagementEventViews.none_event_view()
+                                            (ManagementEventViews.
+                                             none_event_view())
                                     else:
-                                        ManagementEventViews.not_in_charge_event_view()
+                                        (ManagementEventViews.
+                                         not_in_charge_event_view())
                                 elif choice == 2:
                                     MainSearch.show_all_events()
                                 elif choice == 3:
                                     events = Event.find_event_by_support(user)
                                     if events:
-                                        SupportViews.show_all_events_self_support(events)
+                                        (SupportViews.
+                                         show_all_events_self_support(events))
                                     else:
                                         SupportViews.not_assigned_event()
                                 elif choice == 4:
@@ -84,7 +98,8 @@ def handle_support_choise(choice, user):
                                 elif choice == 5:
                                     SupportController(user)
                             else:
-                                print("Veuillez saisir un nombre entre 1 et 5!")
+                                print("Veuillez saisir un nombre entre 1 et "
+                                      "5!")
                         else:
                             MainView.message_no_whole_number()
                 if choice == 4:

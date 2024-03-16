@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from model.principal import Contract, User
+from model.principal import Contract
 
 
 class TestFindContract(unittest.TestCase):
@@ -10,7 +10,8 @@ class TestFindContract(unittest.TestCase):
         contract1 = Mock(id=0, name_lastname="Kevin", total_amount=100)
         contract2 = Mock(id=1, name_lastname="Valentin", total_amount=200)
 
-        mock_session.query.return_value.join.return_value.join.return_value.all.return_value = [contract1, contract2]
+        (mock_session.query.return_value.join.return_value.join.return_value.
+         all).return_value = [contract1, contract2]
 
         with patch('model.principal.session', mock_session):
             contracts = Contract.find_contract()
@@ -32,7 +33,8 @@ class TestFindContractById(unittest.TestCase):
         contract1 = Mock(id=0, description="Contract 1", remaining_amount=50)
         contract2 = Mock(id=1, description="Contract 2", remaining_amount=0)
 
-        mock_session.query.return_value.filter.return_value.first.side_effect = [contract2, contract1]
+        mock_session.query.return_value.filter.return_value.first.side_effect \
+            = [contract2, contract1]
 
         with patch('model.principal.session', mock_session):
             contract = Contract.find_contract_by_id(1)
@@ -43,5 +45,3 @@ class TestFindContractById(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-

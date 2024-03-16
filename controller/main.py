@@ -8,7 +8,8 @@ from controller.sales import SalesController
 from view.authentification import AuthentificationMenu, AuthenticationViews
 from view.principal import MainView
 
-from model.authentication import create_jwt, check_token, check_user, decode_token
+from model.authentication import (create_jwt, check_token, check_user,
+                                  decode_token)
 
 from sentry_config import initialize_sentry
 
@@ -17,11 +18,14 @@ Base = declarative_base()
 
 initialize_sentry()
 
+
 class MainController(AuthentificationMenu):
+
     def __init__(self):
         AuthentificationMenu.main_authentification_menu()
         choice = MainView.choise()
         handle_authentication_choice(choice)
+
 
 def handle_authentication_choice(choice):
     while True:
@@ -29,7 +33,8 @@ def handle_authentication_choice(choice):
             choice = int(choice)
             if 1 <= choice <= 3:
                 if choice == 1:
-                    name_lastname, password = AuthenticationViews.token_creation()
+                    name_lastname, password = (AuthenticationViews
+                                               .token_creation())
                     user = check_user(name_lastname, password)
                     if user:
                         encoded_jwt = create_jwt(user)
@@ -69,6 +74,7 @@ def handle_authentication_choice(choice):
 
         MainController()
         choice = MainView.choise()
+
 
 if __name__ == "__main__":
     MainController()

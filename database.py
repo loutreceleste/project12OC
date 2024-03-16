@@ -14,4 +14,3 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 Base.metadata.create_all(engine)
-
