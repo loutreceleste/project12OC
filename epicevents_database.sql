@@ -1,7 +1,5 @@
 CREATE DATABASE IF NOT EXISTS epicevents;
 
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'Toast13?';
-
 DROP USER IF EXISTS 'root'@'localhost';
 
 CREATE USER 'root'@'localhost' IDENTIFIED BY 'Toast13?';
