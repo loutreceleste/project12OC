@@ -1,7 +1,8 @@
 import sentry_sdk
 
 
-# Function to initialize Sentry SDK for error tracking and performance monitoring
+# Function to initialize Sentry SDK for error tracking and
+# performance monitoring
 def initialize_sentry():
     sentry_sdk.init(
         dsn="https://a49ffe0270f6d84209c9d810d6b0c407@o4506913525727232." +

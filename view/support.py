@@ -35,6 +35,7 @@ class SupportMenu:
         print("4) Rechercher un évènement.")
         print("5) Retour au Menu Support.")
 
+
 # This class is used to display different views for the support module
 class SupportViews:
     # This method displays all events that the current user is responsible for

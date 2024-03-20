@@ -6,8 +6,11 @@ from controller.sales import SalesController
 from view.authentification import AuthentificationMenu, AuthenticationViews
 from view.principal import MainView
 from model.authentication import (create_jwt, check_token, check_user,
-                                  decode_token)
+                                  decode_token, verify_password)
 from sentry_config import initialize_sentry
+import sys
+
+sys.path.append('/home/edward/Documents/Repos/OpenClassRooms/project12OC')
 
 Base = declarative_base()
 
@@ -15,7 +18,7 @@ Base = declarative_base()
 initialize_sentry()
 
 
-class MainController(AuthentificationMenu):
+class AuthenticationController(AuthentificationMenu):
 
     def __init__(self):
         # Display the main authentication menu
@@ -35,7 +38,8 @@ def handle_authentication_choice(choice):
                     # Create a JWT token for the user
                     name_lastname, password = (AuthenticationViews
                                                .token_creation())
-                    user = check_user(name_lastname, password)
+                    encoded_password = verify_password(password)
+                    user = check_user(name_lastname, encoded_password)
                     if user:
                         # Encode JWT and display it to the user
                         encoded_jwt = create_jwt(user)
@@ -79,17 +83,12 @@ def handle_authentication_choice(choice):
                     exit()
             else:
                 # Ask user to enter a number between 1 and 3
-                print("Please enter a number between 1 and 3!")
+                print("Veuillez saisir un nombre entre 1 et 3!")
         else:
             # Display message if user did not enter a whole number
             MainView.message_no_whole_number()
 
         # Restart the main controller to display the authentication menu again
-        MainController()
+        AuthenticationController()
         # Get new user choice
         choice = MainView.choise()
-
-
-if __name__ == "__main__":
-    # Launch the main controller when the script is executed
-    MainController()

@@ -1,4 +1,6 @@
 import datetime
+import hashlib
+
 import jwt
 
 from cryptography.fernet import Fernet
@@ -27,6 +29,7 @@ def create_jwt(user):
 
     return encoded_jwt
 
+
 # Query the database for a user with the given name and password
 def check_user(name_lastname, password):
     user = session.query(User).filter(
@@ -38,16 +41,24 @@ def check_user(name_lastname, password):
 
     return user
 
+
 # Query the database for a user with the given JWT
 def check_token(token):
     user = session.query(User).filter(User.token == token).first()
 
     return user
 
+
 # Decode the JWT using the user's secret key
 def decode_token(token, user):
     secret_key_bytes = user.secret_key.encode('utf-8')
-
     decoded_jwt = jwt.decode(token, secret_key_bytes, algorithms=["HS256"])
 
     return decoded_jwt
+
+
+# Decode the password
+def verify_password(password):
+    provided_password_hashed = hashlib.sha256(password.encode()).hexdigest()
+
+    return provided_password_hashed

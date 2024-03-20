@@ -144,6 +144,7 @@ class MainSearch:
                   f"Support associé: "
                   f"{event.user.name_lastname if event.user else 'Aucun'}")
 
+
 # This class is used to handle different views in the application
 class MainView:
     # This method handles the input for yes or no questions

@@ -2,6 +2,7 @@ from database import session
 from model.principal import check_date_format
 from model.principal import User
 
+
 # This class is used to display different menus for the management module
 class ManagementMenu:
     # This method displays the main management menu
@@ -53,6 +54,7 @@ class ManagementMenu:
         print("4) Afficher tous les événements sans supports associés.")
         print("5) Retour au Menu Gestion.")
 
+
 # This class is used to display different search views for the management
 # module
 class ManagmentSearchViews:
@@ -73,6 +75,7 @@ class ManagmentSearchViews:
                   f"Nombre de convives: {event.guests}, Notes: {event.notes}, "
                   f"Support associé: "
                   f"{event.user.name_lastname if event.user else 'Aucun'}")
+
 
 # This class is used to handle different views related to users (collaborators)
 # in the management module
@@ -168,6 +171,7 @@ class ManagementUserViews:
     @staticmethod
     def validation_update_user_view(user):
         print(f"Le collaborateur {user.name_lastname} a bien ete modifié")
+
 
 # This class is used to handle different views related to contracts in the
 # management module
@@ -303,6 +307,7 @@ class ManagementContractViews:
     @staticmethod
     def not_in_charge_contract_view():
         print("Vous n'êtes pas en charge de ce contrat.")
+
 
 # This class is used to handle different views related to events in the
 # management module

@@ -8,6 +8,7 @@ class AuthentificationMenu:
         print("2) Me connecter avec mon token.")
         print("3) Quitter le programme.")
 
+
 # This class is used to handle different views related to authentication
 class AuthenticationViews:
     # This method handles the view to create a new authentication token

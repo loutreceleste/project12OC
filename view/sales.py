@@ -42,6 +42,7 @@ class SalesMenu:
         print("3) Rechercher un évènement.")
         print("4) Retour au Menu Commercial.")
 
+
 # This class is used to display different search views for the sales module
 class SalesSearchViews:
     # This method displays all customers associated with the current user
@@ -107,6 +108,7 @@ class SalesSearchViews:
                   f"Date de création: {contract.creation_date}, "
                   f"Contrat signé: {contract.contract_sign}, "
                   f"Vendeur associé: {contract.customer.user.name_lastname}")
+
 
 # This class is used to handle different views related to customers in the
 # sales module

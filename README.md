@@ -2,7 +2,7 @@
 
 This repository contains the source code of a CRM system developed for Epic Events, a company specializing in organizing epic events for startups. Developed as part of a student project, this system aims to address the company's urgent need for customer relationship management (CRM). The project follows a Model-View-Controller (MVC) architecture, with Python for the backend and a flexible design to facilitate its evolution. Incorporating development and security best practices, this system is designed to improve operations and relationships with Epic Events' clients.
 
- &nbsp;&nbsp;&nbsp;&nbsp;  &nbsp;&nbsp;&nbsp;&nbsp;  &nbsp;&nbsp;&nbsp;&nbsp;  &nbsp;&nbsp;&nbsp;&nbsp; ![Sentry Badge](https://img.shields.io/badge/Sentry-black?style=for-the-badge&logo=Sentry&logoColor=#362D59) &nbsp;&nbsp;&nbsp;&nbsp; ![Sentry Badge](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue) &nbsp;&nbsp;&nbsp;&nbsp; ![PyCharm Badge](https://img.shields.io/badge/PyCharm-000000.svg?&style=for-the-badge&logo=PyCharm&logoColor=white) &nbsp;&nbsp;&nbsp;&nbsp; ![PyCharm Badge](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![Sentry Badge](https://img.shields.io/badge/Sentry-black?style=for-the-badge&logo=Sentry&logoColor=#362D59) &nbsp;&nbsp;&nbsp;&nbsp; ![Sentry Badge](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue) &nbsp;&nbsp;&nbsp;&nbsp; ![PyCharm Badge](https://img.shields.io/badge/PyCharm-000000.svg?&style=for-the-badge&logo=PyCharm&logoColor=white) &nbsp;&nbsp;&nbsp;&nbsp; ![PyCharm Badge](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
 
 ## <u>Application Installation</u>
 
@@ -47,19 +47,27 @@ python3 main.py
 ```
 Make sure you are in the root directory of the project before executing this command. This will launch the application and allow you to interact with it via the terminal.
 
-## <u>Run Tests</u>
+## <u>Tests and Coverage</u>
 
-Execute the following command to run all tests:
+1. **Tests:** Execute the following command to run all tests:
 
    ```bash
    pytest
    ```
-For a more detailed output, use:
+   For a more detailed output, use:
+   
+      ```bash
+      pytest -v
+      ```
 
+2. **Coverage:** To generate a coverage report type:
    ```bash
-   pytest -v
+   pytest --cov=app
    ```
-This will display each test case with its outcome.
+   To generate an HTML coverage report for the project type:
+   ```bash
+   pytest --cov=. --cov-report html
+   ```
 
 ## <u>Flake8 Report</u>
 

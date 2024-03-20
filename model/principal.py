@@ -8,10 +8,12 @@ from database import session
 # Base class for SQLAlchemy ORM
 Base = declarative_base()
 
+
 # Function to check date format
 def check_date_format(date_str):
     pattern = r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$"
     return re.match(pattern, date_str)
+
 
 # User class representing the 'users' table
 class User(Base):
@@ -86,6 +88,7 @@ class User(Base):
             user.email = email
 
         session.commit()
+
 
 # Customer class representing the 'customers' table
 class Customer(Base):
@@ -165,6 +168,7 @@ class Customer(Base):
             customer.business_name = business_name
 
         session.commit()
+
 
 # Contract class representing the 'contracts' table
 class Contract(Base):
@@ -284,6 +288,7 @@ class Contract(Base):
             contract.contract_sign = contract_sign
 
         session.commit()
+
 
 # Event class representing the 'events' table
 class Event(Base):
