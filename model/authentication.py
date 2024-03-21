@@ -31,11 +31,11 @@ def create_jwt(user):
 
 
 # Query the database for a user with the given name and password
-def check_user(name_lastname, password):
+def check_user(name_lastname, encoded_password):
     user = session.query(User).filter(
         and_(
             User.name_lastname == name_lastname,
-            User.password == password,
+            User.password == encoded_password,
         )
     ).limit(1).first()
 
@@ -51,7 +51,10 @@ def check_token(token):
 
 # Decode the JWT using the user's secret key
 def decode_token(token, user):
-    secret_key_bytes = user.secret_key.encode('utf-8')
+    if isinstance(user, dict):
+        secret_key_bytes = user['secret_key'].encode('utf-8')
+    else:
+        secret_key_bytes = user.secret_key.encode('utf-8')
     decoded_jwt = jwt.decode(token, secret_key_bytes, algorithms=["HS256"])
 
     return decoded_jwt

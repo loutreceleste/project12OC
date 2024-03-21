@@ -398,7 +398,8 @@ class ManagementEventViews:
         support_id = None
 
         print(f"\n-----MISE A JOUR DE L'ÉVÉNEMENT N°{id}-----")
-        title = input(f"Nom de l'événement: {event.title}")
+        print("Appuyez sur 'Entrée' afin de conserver l'information actuelle.")
+        title = input(f"Nom de l'événement ({event.title}): ")
         while True:
             date_hour_start_input = input(f"Date et heure du début de "
                                           f"l'événement (format AAAA-MM-JJ "

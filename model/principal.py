@@ -326,22 +326,20 @@ class Event(Base):
 
     # Search for events in the database based on various criteria
     @classmethod
-    def find_event_by_search(cls, search):
+    def find_event_by_search(cls, search: str):
         contract_alias = aliased(Contract)
         customer_alias = aliased(Customer)
         user_alias = aliased(User)
 
-        events = (
-            session.query(Event).join(contract_alias, Event.contract).
-            join(customer_alias, contract_alias.customer)
-            .outerjoin(user_alias, Event.user).filter(
-                or_(
-                    Event.id == search,
+        events = (session.query(Event).join(contract_alias, Event.contract)
+                  .join(customer_alias, contract_alias.customer)
+                  .outerjoin(user_alias, Event.user).filter
+                  (or_
+                   (Event.id == search,
                     customer_alias.name_lastname.startswith(f"%{search}%"),
                     Event.title.startswith(f"%{search}%"),
-                    user_alias.name_lastname.startswith(f"%{search}%")
-                )
-            ).all())
+                    user_alias.name_lastname.startswith(f"%{search}%"))
+                   ).all())
         return events
 
     # Retrieve an event by id from the database
@@ -354,7 +352,7 @@ class Event(Base):
     @classmethod
     def find_event_without_support(cls):
         events = (
-            session.query(Event).filter(Event.support_contact is None)
+            session.query(Event).filter(Event.support_contact.is_(None))
             .all())
         return events
 
@@ -362,7 +360,7 @@ class Event(Base):
     @classmethod
     def find_event_by_support(cls, user):
         events = session.query(Event).filter(Event.support_contact ==
-                                             user.name_lastname).all()
+                                             user.id).all()
         return events
 
     # Create a new event and add it to the database

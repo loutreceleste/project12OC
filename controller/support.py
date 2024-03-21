@@ -105,18 +105,20 @@ def handle_support_choice(choice, user):
                                     id = (ManagementEventViews.
                                           update_event_id_contract_view())
                                     event = Event.find_event_by_id(id)
+                                    print(event)
                                     if (event.support_contact ==
-                                            user.name_lastname):
+                                            user.id):
                                         if event:
                                             (title, date_hour_start,
                                              date_hour_end, address, guests,
                                              notes) = (
-                                                ManagementEventViews.
-                                                update_event_view(event, id))
+                                                SupportViews.
+                                                update_event_view_support
+                                                (event, id))
                                             Event.update_event_for_support(
-                                                title, date_hour_start,
+                                                event, title, date_hour_start,
                                                 date_hour_end, address, guests,
-                                                notes, event)
+                                                notes)
                                             (ManagementEventViews.
                                              validation_update_event_view())
                                         else:
@@ -145,8 +147,8 @@ def handle_support_choice(choice, user):
                                     # Search for events
                                     search = (MainSearch.
                                               search_all_events_search())
-                                    events = (MainSearch.
-                                              show_all_events_search(search))
+                                    events = (Event.
+                                              find_event_by_search(search))
                                     if events:
                                         (MainSearch.
                                          show_all_events_search(events))

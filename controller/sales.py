@@ -122,7 +122,8 @@ def handle_sales_choice(choice, user):
                                           update_contract_id_view())
                                     contract = Contract.find_contract_by_id(id)
                                     if contract:
-                                        if user.id == contract.customer.id:
+                                        if (user.id
+                                                == contract.customer.user.id):
                                             (total_amount, settled_amount,
                                              contract_sign) = (
                                                 ManagementContractViews.
@@ -280,8 +281,8 @@ def handle_sales_choice(choice, user):
                                     # Search for events
                                     search = (MainSearch.
                                               search_all_events_search())
-                                    events = (MainSearch.
-                                              show_all_events_search(search))
+                                    events = (Event.
+                                              find_event_by_search(search))
                                     if events:
                                         (MainSearch.
                                          show_all_events_search(events))
